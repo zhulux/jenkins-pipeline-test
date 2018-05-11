@@ -7,20 +7,8 @@ pipeline {
     stage('Example') {
       steps {
         echo 'Hello World! '
+        sh 'echo mycustomenv1 = $mycustomenv1'
       }
     }
   }
-}
-
-
-pipeline {
-    agent { dockerfile true }
-    stages {
-        stage('Test') {
-            steps {
-                sh 'node --version'
-                sh 'svn --version'
-            }
-        }
-    }
 }
