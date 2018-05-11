@@ -1,6 +1,7 @@
 pipeline {
   agent {
       label 'k8s'
+      dockerfile true
   }
   stages {
     stage('Example') {
@@ -9,4 +10,17 @@ pipeline {
       }
     }
   }
+}
+
+
+pipeline {
+    agent { dockerfile true }
+    stages {
+        stage('Test') {
+            steps {
+                sh 'node --version'
+                sh 'svn --version'
+            }
+        }
+    }
 }
