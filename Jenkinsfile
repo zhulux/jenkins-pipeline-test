@@ -1,6 +1,5 @@
 pipeline {
   agent {
-      label 'k8s'
       dockerfile true
   }
   stages {
