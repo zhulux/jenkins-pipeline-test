@@ -23,6 +23,7 @@ node('docker-build-cn') {
             println env.CHANGE_ID
             println commit_id
             app.push ("${env.CHANGE_ID}")
+            app.push("${env.CHANGE_ID}")
         }
     }
     stage('Staging Deployment'){
