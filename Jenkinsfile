@@ -1,5 +1,6 @@
 node('docker-build-cn') {
     def IMAGE_NAME=optimus
+    def app
 
     stage('Clone repository'){
         label 'docker-build-cn'
@@ -12,7 +13,7 @@ node('docker-build-cn') {
 
     stage('Build Image'){
         label 'docker-build-cn'
-        def app = docker.build "optimus"
+        app = docker.build("$IMAGE_NAME")
 
     }
     stage('Test image'){
