@@ -1,16 +1,18 @@
-node {
+node('docker-build-cn') {
     environment {
         IMAGE_NAME=optimus
     }
 
     stage('Clone repository'){
+        agent 
         label 'docker-build-cn'
         check scm
         sh "git rev-parse --short=8 > .git/commit-id"
         def commit_id = readFile('.git/commit-id').trim()
         println commit_id
 
-    }        
+    }
+
     stage('Build Image'){
         label 'docker-build-cn'
         def app = docker.build $IMAGE_NAME
