@@ -7,7 +7,7 @@ node('docker-build-cn') {
         sh "git rev-parse HEAD > .git/commit-id"
         def commit_id = readFile('.git/commit-id').trim()
         println commit_id
-        app = docker.build("optimus/helloworld")
+        app = docker.build("helloworld")
 
     }
 
@@ -18,7 +18,7 @@ node('docker-build-cn') {
         label 'docker-build-cn'
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
             app.push 'master'
-            app.push $commit_id
+            app.push "${commit_id}"
         }
     }
     stage('Staging Deployment'){
