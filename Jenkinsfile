@@ -20,6 +20,8 @@ node('docker-build-cn') {
         label 'docker-build-cn'
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
             app.push 'master'
+            println env.CHANGE_ID
+            println commit_id
             app.push ("${env.CHANGE_ID}")
         }
     }
