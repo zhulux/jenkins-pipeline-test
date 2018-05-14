@@ -13,9 +13,10 @@ node('docker-build-cn') {
 
     stage('Build Image'){
         label 'docker-build-cn'
-        app = docker.build("$IMAGE_NAME")
+        app = docker.build("optimus")
 
     }
+
     stage('Test image'){
         echo 'TODO: add tests'
     }
