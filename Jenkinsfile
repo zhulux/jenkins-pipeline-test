@@ -12,7 +12,7 @@ node('docker-build-cn') {
 
     stage('Build Image'){
         label 'docker-build-cn'
-        def app = docker.build $IMAGE_NAME
+        def app = docker.build "optimus"
 
     }
     stage('Test image'){
