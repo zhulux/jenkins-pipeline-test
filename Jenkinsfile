@@ -4,7 +4,6 @@ node('docker-build-cn') {
     }
 
     stage('Clone repository'){
-        agent 
         label 'docker-build-cn'
         check scm
         sh "git rev-parse --short=8 > .git/commit-id"
