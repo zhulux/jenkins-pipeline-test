@@ -1,5 +1,4 @@
 node('docker-build-cn') {
-    def IMAGE_NAME=optimus
     def app
 
     stage('Clone repository'){
