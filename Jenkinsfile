@@ -5,7 +5,7 @@ node('docker-build-cn') {
 
     stage('Clone repository'){
         label 'docker-build-cn'
-        check scm
+        checkout scm
         sh "git rev-parse --short=8 > .git/commit-id"
         def commit_id = readFile('.git/commit-id').trim()
         println commit_id
