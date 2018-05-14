@@ -1,5 +1,6 @@
 
 
+
 node('docker-build-cn') {
     def app
 
@@ -20,7 +21,7 @@ node('docker-build-cn') {
         label 'docker-build-cn'
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
             app.push 'master'
-            app.push("${env.CHANGE_ID}")
+            app.push ("${env.CHANGE_ID}")
         }
     }
     stage('Staging Deployment'){
@@ -37,3 +38,4 @@ node('docker-build-cn') {
     }
 
 }
+
