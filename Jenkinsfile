@@ -1,5 +1,4 @@
 node {
-    def app
     environment {
         IMAGE_NAME=optimus
     }
