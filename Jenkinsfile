@@ -8,10 +8,6 @@ node('docker-build-cn') {
         sh "git rev-parse HEAD > .git/commit-id"
         def commit_id = readFile('.git/commit-id').trim()
         println commit_id
-
-    }
-
-    stage('Build Image'){
         app = docker.build("optimus/helloworld")
 
     }
