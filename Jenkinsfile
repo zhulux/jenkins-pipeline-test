@@ -1,7 +1,5 @@
 node('docker-build-cn') {
-    environment {
-        IMAGE_NAME=optimus
-    }
+    def IMAGE_NAME=optimus
 
     stage('Clone repository'){
         label 'docker-build-cn'
