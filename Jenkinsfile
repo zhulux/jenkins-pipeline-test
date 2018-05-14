@@ -12,8 +12,7 @@ node('docker-build-cn') {
     }
 
     stage('Build Image'){
-        label 'docker-build-cn'
-        app = docker.build("optimus")
+        app = docker.build("optimus/helloworld")
 
     }
 
