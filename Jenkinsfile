@@ -1,5 +1,4 @@
-
-
+#!groovy
 
 node('docker-build-cn') {
     def app
@@ -11,16 +10,11 @@ node('docker-build-cn') {
         def commit_id = readFile('.git/commit-id').trim()
         println commit_id
         app = docker.build("helloworld")
-        def v = version()
-        if (v) {
-            echo "Building version ${v}"
-        }
-
-    }
 
     stage('Test image'){
         echo 'TODO: add tests'
     }
+
     stage('Publish Image to Registry'){
         label 'docker-build-cn'
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
@@ -28,8 +22,12 @@ node('docker-build-cn') {
             app.push ("${env.CHANGE_ID}")
         }
     }
+}
+
+node('k8s') {
     stage('Staging Deployment'){
         echo "deploy staging"
+        sh "date"
     }
     stage('Go for Production?'){
         milestone(1)
