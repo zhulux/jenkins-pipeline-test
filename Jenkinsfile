@@ -13,6 +13,7 @@ node('docker-build-cn') {
     }
     stage('Test image'){
         echo 'TODO: add tests'
+        println commit_id
     }
 
     stage('Publish Image to Registry'){
