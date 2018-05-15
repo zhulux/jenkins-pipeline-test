@@ -1,1 +1,7 @@
 test
+test
+Dockerfile      Jenkinsfile     jenkins-de      jenkins-de-copy test-temp-file
+~/Documents/github/jenkins-pipeline-test (staging ✔) ᐅ vim test-temp-file 
+
+test
+test
