@@ -14,6 +14,7 @@ node('docker-build-cn') {
     stage('Publish Image to Registry'){
         label 'docker-build-cn'
         sh "git rev-parse HEAD > .git/commit-id"
+        sh "a=`git rev-parse HEAD`; echo ${a:0:7} > .git/commit-id"
         sh "git describe --tags --abbrev=0 > .git/tag-id"
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
