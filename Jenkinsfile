@@ -19,8 +19,8 @@ node('docker-build-cn') {
         label 'docker-build-cn'
         releasedVersion = getReleasedVersion()
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
-            app.push 'master'
-            app.push "${releasedVersion}"
+            app.push("${BRANCH_NAME}")
+            app.push("${CHANGE_ID}")
         }
     }
 }
