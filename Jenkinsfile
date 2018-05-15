@@ -6,21 +6,24 @@ node('docker-build-cn') {
     stage('Clone repository'){
         label 'docker-build-cn'
         checkout scm 
-        sh "git rev-parse HEAD > .git/commit-id"
-        def commit_id = readFile('.git/commit-id').trim()
-        println commit_id
-        app = docker.build("helloworld")
     }
     stage('Test image'){
         echo 'TODO: add tests'
-        println commit_id
     }
 
     stage('Publish Image to Registry'){
         label 'docker-build-cn'
+        sh "git rev-parse HEAD > .git/commit-id"
+        sh "git describe --tags --abbrev=0 > .git/tag-id"
+        def commit_id = readFile('.git/commit-id').trim()
+        def tag_id = readFile('.git/tag-id').trim()
+        println commit_id
+        println tag_id
+
+        app = docker.build("helloworld")
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
             app.push("${BRANCH_NAME}")
-            app.push("${CHANGE_ID}")
+            app.push("${tag_id}")
         }
     }
 }
