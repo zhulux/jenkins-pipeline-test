@@ -10,7 +10,7 @@ node('docker-build-cn') {
         def commit_id = readFile('.git/commit-id').trim()
         println commit_id
         app = docker.build("helloworld")
-
+    }
     stage('Test image'){
         echo 'TODO: add tests'
     }
