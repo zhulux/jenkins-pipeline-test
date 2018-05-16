@@ -25,11 +25,10 @@ node('docker-build-cn') {
         label 'docker-build-cn'
         sh "git rev-parse HEAD > .git/commit-id"
         sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
-        try {
+        if (env.BRANCH_NAME == 'master') {
             sh "git describe --tags --abbrev=0 > .git/tag-id"
-        }catch (Exception e) {
-            sh "echo Handle the exception!"
-         }
+        }
+        
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
         println commit_id
