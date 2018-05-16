@@ -18,7 +18,7 @@ node('docker-build-cn') {
         try {
             sh "git describe --tags --abbrev=0 > .git/tag-id"
         }catch (Exception e) {
-            sh 'Handle the exception!'
+            sh "echo Handle the exception!"
          }
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
