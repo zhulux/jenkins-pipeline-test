@@ -25,18 +25,28 @@ node('docker-build-cn') {
         label 'docker-build-cn'
         sh "git rev-parse HEAD > .git/commit-id"
         sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
-        sh "git describe --tags --abbrev=0 > .git/tag-id"
+        try {
+            sh "git describe --tags --abbrev=0 > .git/tag-id"
+        }catch (Exception e) {
+            sh "echo Handle the exception!"
+         }
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
         println commit_id
-        println tag_id
 
         app = docker.build("helloworld")
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
+        if (env.BRANCH_NAME == 'staging') {
             app.push("${BRANCH_NAME}-${commit_id}")
-            echo GIT_BRANCH
-        if (env.BRANCH_NAME == 'master') {
+        }
+        else if(env.BRANCH_NAME == 'master') {
             app.push("${tag_id}")
+        }
+        else if(env.BRANCH_NAME ==~ /v.*/ ){
+            app.push("${tag_id}")
+        }
+        else {
+            input "do do do"
         }
         }
     }
