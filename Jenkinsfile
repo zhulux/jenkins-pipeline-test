@@ -1,9 +1,9 @@
 #!groovy
-echo env.getEnvironment()
-echo ${env.BRANCH}
 
 node('docker-build-cn') {
     def app
+    echo env.getEnvironment()
+    echo ${env.BRANCH}
 
     stage('Clone repository'){
         label 'docker-build-cn'
