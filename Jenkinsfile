@@ -24,12 +24,12 @@ node('docker-build-cn') {
         app = docker.build("helloworld")
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
             app.push("${BRANCH_NAME}-${commit_id}")
-            when {
-                expression branch 'master'
-            }
-            steps {
-                app.push("${tag_id}")
-            }
+        when {
+            expression branch 'master'
+        }
+        steps {
+            app.push("${tag_id}")
+        }
         }
     }
 }
