@@ -23,7 +23,6 @@ node('docker-build-cn') {
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
         println commit_id
-        println tag_id
         def matcher = "5.2.0.123" =~ /^[0-9]+(\.[0-9]+)?(\.[0-9]+)?/
         def matcher_tag = tag_id.findAll(/^v[0-9]+(\.[0-9]+)?(\.[0-9]+)?/)
 
