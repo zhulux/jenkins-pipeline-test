@@ -20,6 +20,8 @@ node('docker-build-cn') {
         def tag_id = readFile('.git/tag-id').trim()
         println commit_id
         println tag_id
+        def matcher = "5.2.0.123" =~ /^[0-9]+(\.[0-9]+)?(\.[0-9]+)?/
+        def matcher_tag = tag_id.findAll(/^v[0-9]+(\.[0-9]+)?(\.[0-9]+)?/)
 
         app = docker.build("helloworld")
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
@@ -29,8 +31,9 @@ node('docker-build-cn') {
         else (env.BRANCH_NAME == 'master') {
             app.push("${tag_id}")
         }
-        else (env.BRANCH_NAME == 'v.*')
+        else ( matcher_tag.matches() ){
             app.push("${tag_id}")
+        }
         }
     }
 }
