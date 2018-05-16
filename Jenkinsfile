@@ -1,4 +1,6 @@
 #!groovy
+echo env.getEnvironment()
+echo ${env.BRANCH}
 
 node('docker-build-cn') {
     def app
