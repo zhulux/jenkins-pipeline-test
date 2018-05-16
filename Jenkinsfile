@@ -2,13 +2,23 @@
 
 node('docker-build-cn') {
     def app
-
+    def myRepo = checkout scm
+    def gitCommit = myRepo.GIT_COMMIT
+    def gitBranch = myRepo.GIT_BRANCH
+    def shortGitCommit = "${gitCommit[0..10]}"
+    def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
+ 
     stage('Clone repository'){
         label 'docker-build-cn'
         checkout scm 
     }
     stage('Test image'){
         echo 'TODO: add tests'
+        println myRepo
+        println gitCommit
+        println gitBranch
+        println shortGitCommit
+        println previousGitCommit
     }
 
     stage('Publish Image to Registry'){
