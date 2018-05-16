@@ -25,7 +25,7 @@ node('docker-build-cn') {
         label 'docker-build-cn'
         sh "git rev-parse HEAD > .git/commit-id"
         sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
-        if (env.BRANCH_NAME == 'master') {
+        if (env.BRANCH_NAME ==~ /v.*/) {
             sh "git describe --tags --abbrev=0 > .git/tag-id"
         }
         
