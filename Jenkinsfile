@@ -38,9 +38,6 @@ node('docker-build-cn') {
         if (env.BRANCH_NAME == 'staging') {
             app.push("${BRANCH_NAME}-${commit_id}")
         }
-        else if(env.BRANCH_NAME == 'master') {
-            app.push("${tag_id}")
-        }
         else if(env.BRANCH_NAME ==~ /v.*/ ){
             app.push("${tag_id}")
         }
