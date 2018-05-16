@@ -23,8 +23,6 @@ node('docker-build-cn') {
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
         println commit_id
-        def matcher = "5.2.0.123" =~ /^[0-9]+(\.[0-9]+)?(\.[0-9]+)?/
-        def matcher_tag = tag_id.findAll(/^v[0-9]+(\.[0-9]+)?(\.[0-9]+)?/)
 
         app = docker.build("helloworld")
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
