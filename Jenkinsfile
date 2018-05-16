@@ -2,7 +2,6 @@
 
 node('docker-build-cn') {
     def app
-    echo ${env.BRANCH}
 
     stage('Clone repository'){
         label 'docker-build-cn'
@@ -25,6 +24,7 @@ node('docker-build-cn') {
         app = docker.build("helloworld")
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
             app.push("${BRANCH_NAME}-${commit_id}")
+            echo GIT_BRANCH
         if (env.BRANCH_NAME == 'master') {
             app.push("${tag_id}")
         }
