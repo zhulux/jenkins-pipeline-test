@@ -31,7 +31,7 @@ node('docker-build-cn') {
         else (env.BRANCH_NAME == 'master') {
             app.push("${tag_id}")
         }
-        else ( matcher_tag.matches() ){
+        else (env.BRANCH_NAME ==~ /v.*/ ){
             app.push("${tag_id}")
         }
         }
