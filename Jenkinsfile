@@ -1,5 +1,6 @@
 #!groovy
 pipeline {
+  agent none
   stages {
     // clone repo step
     stage('Clone Repository') {
