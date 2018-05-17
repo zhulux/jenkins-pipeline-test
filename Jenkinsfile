@@ -62,7 +62,10 @@ node('k8s') {
                 input 'Deploy to Production?'
             }
             milestone(2)
-            echo "deploy to product"
+            stage('Produciton Deployment'){
+                echo "deploy to product"
+
+            }
     
         }
 
