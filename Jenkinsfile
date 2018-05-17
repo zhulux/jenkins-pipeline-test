@@ -56,7 +56,9 @@ node('k8s') {
     }
     stage('Go for Production?'){
         milestone(1)
-        input 'Deploy to Production?'
+        timeout(time:5, unit:'MINUTES'){
+            input 'Deploy to Production?'
+        }
         milestone(2)
     }
     stage('Production Deployment'){
@@ -65,4 +67,3 @@ node('k8s') {
     }
 
 }
-
