@@ -31,7 +31,6 @@ node('docker-build-cn') {
         
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
-        def BUILD_ID = commit_id
         println commit_id
         println env.BUILD_ID
         println BUILD_ID
@@ -53,13 +52,15 @@ node('docker-build-cn') {
 }
 
 node('k8s') {
+    def IMAGE_REPO="registry.astarup.com:5000/helloworld"
+    def IMAGE_TAG="(${BRANCH_NAME}-${BUILD_ID})"
     stage('Staging Deployment'){
         if (env.BRANCH_NAME == 'staging') {
             sh ""
             echo "deploy staging"
             sh "date"
             println env.BUILD_ID
-            println BRANCH_NAME-BUILD_ID
+            echo "kubectl set image=${IMAGE_TAG} repo=${IMAGE_REPO}"
         }
     }
     stage('Go for Production?'){
