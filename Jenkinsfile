@@ -1,12 +1,6 @@
 #!groovy
 
 node('docker-build-cn') {
-    echo env.BRANCH_NAME
-    echo env.CHANGE_ID
-    println env.CHANGE_ID
-    println env.CHANGE_AUTHOR
-    println env.IMAGE_TAG
-    println env.JOB_URL
     def app
     def myRepo = checkout scm
     def gitCommit = myRepo.GIT_COMMIT
@@ -77,6 +71,7 @@ node('k8s') {
 
     stage('Produciton Deployment'){
         if (env.BRANCH_NAME ==~ /v.*/){
+            def IMAGE_TAG="${BRANCH_NAME}"
             echo "kubectl set image deployment_name image=${IMAGE_REPO}:${IMAGE_TAG}"
         }
 
