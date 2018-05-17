@@ -50,8 +50,10 @@ node('docker-build-cn') {
 
 node('k8s') {
     stage('Staging Deployment'){
-        echo "deploy staging"
-        sh "date"
+        if (env.BRANCH_NAME == 'staging') {
+            echo "deploy staging"
+            sh "date"
+        }
     }
     stage('Go for Production?'){
         if (env.BRANCH_NAME ==~ /v.*/){
