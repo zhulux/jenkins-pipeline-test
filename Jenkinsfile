@@ -34,11 +34,12 @@ node('docker-build-cn') {
         def BUILD_ID = commit_id
         println commit_id
         println env.BUILD_ID
+        println BUILD_ID
 
         app = docker.build("helloworld")
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
         if (env.BRANCH_NAME == 'staging') {
-            app.push("${BRANCH_NAME}-${commit_id}")
+            app.push("${BRANCH_NAME}-${BUILD_ID}")
         }
         else if(env.BRANCH_NAME ==~ /v.*/ ){
             app.push("${tag_id}")
@@ -58,6 +59,7 @@ node('k8s') {
             echo "deploy staging"
             sh "date"
             println env.BUILD_ID
+            println BRANCH_NAME-BUILD_ID
         }
     }
     stage('Go for Production?'){
