@@ -1,6 +1,7 @@
 #!groovy
 
 node('docker-build-cn') {
+    echo env.BRANCH_NAME
     def app
     def myRepo = checkout scm
     def gitCommit = myRepo.GIT_COMMIT
