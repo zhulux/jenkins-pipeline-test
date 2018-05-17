@@ -35,12 +35,11 @@ pipeline {
         commit_id = readFile('.git/commit-id').trim()
 
       }
-      when {
-        expression { env.BRANCH_NAME ==~ /v.*/}
-        sh "git describe --tags --abbrev=0 > .git/tag-id"
-
-      }
       steps {
+        when {
+          expression { env.BRANCH_NAME ==~ /v.*/}
+          sh "git describe --tags --abbrev=0 > .git/tag-id"
+        }
         echo 'publish image'
       }
     }
