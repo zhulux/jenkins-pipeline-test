@@ -31,7 +31,7 @@ node('docker-build-cn') {
         
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
-        def env.BUILD_ID = commit_id
+        def BUILD_ID = commit_id
         println commit_id
         println env.BUILD_ID
 
