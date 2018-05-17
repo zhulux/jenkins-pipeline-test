@@ -54,13 +54,14 @@ node('k8s') {
         sh "date"
     }
     stage('Go for Production?'){
-        milestone(1)
-        timeout(time:5, unit:'MINUTES'){
-            input 'Deploy to Production?'
+        if (env.BRANCH_NAME ==~ /v.*/){
+            milestone(1)
+            timeout(time:5, unit:'MINUTES'){
+                input 'Deploy to Production?'
+            }
+            milestone(2)
+    
         }
-        milestone(2)
-    }
-    stage('Production Deployment'){
         echo "deploy to product"
 
     }
