@@ -54,10 +54,11 @@ node('k8s') {
         if (env.BRANCH_NAME == 'staging') {
             echo "deploy staging"
             sh "date"
-            println CHANGE_ID
-            println CHANGE_AUTHOR
-            println IMAGE_TAG
-            println JOB_URL
+            echo env.CHANGE_ID
+            println env.CHANGE_ID
+            println env.CHANGE_AUTHOR
+            println env.IMAGE_TAG
+            println env.JOB_URL
         }
     }
     stage('Go for Production?'){
