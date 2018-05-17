@@ -19,11 +19,6 @@ node('docker-build-cn') {
     }
     stage('Test image'){
         echo 'TODO: add tests'
-        println myRepo
-        println gitCommit
-        println gitBranch
-        println shortGitCommit
-        println previousGitCommit
     }
 
     stage('Publish Image to Registry'){
@@ -36,7 +31,9 @@ node('docker-build-cn') {
         
         def commit_id = readFile('.git/commit-id').trim()
         def tag_id = readFile('.git/tag-id').trim()
+        def env.BUILD_ID = commit_id
         println commit_id
+        println env.BUILD_ID
 
         app = docker.build("helloworld")
         docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
@@ -57,13 +54,10 @@ node('docker-build-cn') {
 node('k8s') {
     stage('Staging Deployment'){
         if (env.BRANCH_NAME == 'staging') {
+            sh ""
             echo "deploy staging"
             sh "date"
-            echo env.CHANGE_ID
-            println env.CHANGE_ID
-            println env.CHANGE_AUTHOR
-            println env.IMAGE_TAG
-            println env.JOB_URL
+            println env.BUILD_ID
         }
     }
     stage('Go for Production?'){
