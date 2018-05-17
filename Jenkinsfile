@@ -63,6 +63,7 @@ node('k8s') {
             echo "kubectl set image=${IMAGE_REPO}:${IMAGE_TAG}"
         }
     }
+
     stage('Go for Production?'){
         if (env.BRANCH_NAME ==~ /v.*/){
             def IMAGE_TAG="${BRANCH_NAME}"
@@ -71,13 +72,16 @@ node('k8s') {
                 input 'Deploy to Production?'
             }
             milestone(2)
-            stage('Produciton Deployment'){
-                echo "kubectl set image deployment_name image=${IMAGE_REPO}:${IMAGE_TAG}"
+        }
+    }
 
-            }
-    
+    stage('Produciton Deployment'){
+        if (env.BRANCH_NAME ==~ /v.*/){
+            echo "kubectl set image deployment_name image=${IMAGE_REPO}:${IMAGE_TAG}"
         }
 
     }
+    
+
 
 }
