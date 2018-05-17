@@ -1,6 +1,10 @@
 #!groovy
 pipeline {
   agent none
+
+  environment {
+    IMAGE_REPO = "registry.astarup.com:5000/helloworld"
+  }
   stages {
     // clone repo step
     stage('Clone Repository') {
@@ -26,6 +30,15 @@ pipeline {
     stage('Publish Image to Registry') {
       agent {
         label 'docker-build-cn'
+      }
+      environment {
+        commit_id = readFile('.git/commit-id').trim()
+
+      }
+      when {
+        expression { env.BRANCH_NAME ==~ /v.*/}
+        sh "git describe --tags --abbrev=0 > .git/tag-id"
+
       }
       steps {
         echo 'publish image'
