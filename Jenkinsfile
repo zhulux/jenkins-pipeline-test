@@ -9,7 +9,6 @@ node('docker-build-cn') {
     def previousGitCommit = sh(script: "git rev-parse ${gitCommit}~", returnStdout: true)
  
     stage('Clone repository'){
-        label 'docker-build-cn'
         checkout scm 
     }
     stage('Test image'){
@@ -51,7 +50,6 @@ node('docker-build-cn') {
 node('k8s') {
     stage('Staging Deployment'){
         echo "deploy staging"
-        println shortGitCommit
         sh "date"
     }
     stage('Go for Production?'){
