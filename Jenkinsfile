@@ -51,6 +51,7 @@ node('docker-build-cn') {
 node('k8s') {
     stage('Staging Deployment'){
         echo "deploy staging"
+        println commit_id
         sh "date"
     }
     stage('Go for Production?'){
