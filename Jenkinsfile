@@ -53,12 +53,12 @@ node('docker-build-cn') {
 
 node('k8s') {
     def IMAGE_REPO="registry.astarup.com:5000/helloworld"
-    if (env.BRANCH_NAME == 'staging') {
-        def IMAGE_TAG="${BRANCH_NAME}-${BUILD_ID}"
-    }
-    else {
-        def IMAGE_TAG="${BRANCH_NAME}"
-    }
+if (env.BRANCH_NAME == 'staging') {
+    def IMAGE_TAG="${BRANCH_NAME}-${BUILD_ID}"
+}
+else {
+    def IMAGE_TAG="${BRANCH_NAME}"
+}
     stage('Staging Deployment'){
         if (env.BRANCH_NAME == 'staging') {
             sh ""
