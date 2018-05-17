@@ -2,6 +2,11 @@
 
 node('docker-build-cn') {
     echo env.BRANCH_NAME
+    echo env.CHANGE_ID
+    println env.CHANGE_ID
+    println env.CHANGE_AUTHOR
+    println env.IMAGE_TAG
+    println env.JOB_URL
     def app
     def myRepo = checkout scm
     def gitCommit = myRepo.GIT_COMMIT
@@ -77,11 +82,4 @@ node('k8s') {
 
     }
 
-}
-node('docker-build-cn') {
-    stage('List pods') {
-        withKubeConfig([credentialsId: '0cbaa7be-54bb-4b63-8e1d-7a3aebda6f77', caCertificate: '', serverUrl: 'https://192.168.60.2:6443']) {
-            sh 'kubectl get pods'
-        }
-    }
 }
