@@ -37,4 +37,3 @@ node('docker-build-cn') {
 }
 
 
-Gogogogog
