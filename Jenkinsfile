@@ -46,7 +46,9 @@ node('docker-build-cn') {
         }
         }
         def IMAGE_TAG=BRANCH_NAME-commit_id
+    
     }
+    withEnv(['IMAGE_TAG=${BRANCH_NAME}'])
 }
 
 node('k8s') {
@@ -54,6 +56,7 @@ node('k8s') {
         if (env.BRANCH_NAME == 'staging') {
             echo "deploy staging"
             sh "date"
+            println IMAGE_TAG
         }
     }
     stage('Go for Production?'){
