@@ -75,7 +75,7 @@ node('k8s') {
 }
 node('docker-build-cn') {
     stage('List pods') {
-        withKubeConfig([credentialsId: '0cbaa7be-54bb-4b63-8e1d-7a3aebda6f77', caCertificate: 'kube-test', serverUrl: 'https://192.168.60.2:6443']) {
+        withKubeConfig([credentialsId: '0cbaa7be-54bb-4b63-8e1d-7a3aebda6f77', caCertificate: '', serverUrl: 'https://192.168.60.2:6443']) {
             sh 'kubectl get pods'
         }
     }
