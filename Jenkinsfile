@@ -53,7 +53,12 @@ node('docker-build-cn') {
 
 node('k8s') {
     def IMAGE_REPO="registry.astarup.com:5000/helloworld"
-    def IMAGE_TAG="(${BRANCH_NAME}-${BUILD_ID})"
+    if (env.BRANCH_NAME == 'staging') {
+        def IMAGE_TAG="${BRANCH_NAME}-${BUILD_ID}"
+    }
+    else {
+        def IMAGE_TAG="${BRANCH_NAME}"
+    }
     stage('Staging Deployment'){
         if (env.BRANCH_NAME == 'staging') {
             sh ""
@@ -71,7 +76,7 @@ node('k8s') {
             }
             milestone(2)
             stage('Produciton Deployment'){
-                echo "deploy to product"
+                echo "kubectl set image deployment_name image=${IMAGE_REPO}:${IMAGE_TAG}"
 
             }
     
