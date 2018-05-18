@@ -76,6 +76,7 @@ pipeline {
       }
       steps {
         echo 'stage deploy'
+        echo "kubectl set image deployment_name=${IMAGE_REPO}:${BUILD_ID}"
       }
     }
     // approve deploy product ?
@@ -83,15 +84,21 @@ pipeline {
       agent {
         label 'docker-build-cn'
       }
+      when {
+        tag "v*"
+      }
       steps {
-        echo 'stage deploy'
-        echo "kubectl set image deployment_name=${IMAGE_REPO}:${BUILD_ID}"
+        milestone(1)
+        timeout(time:2, unit:'MINUTES'){
+          input 'Deploy to Production?'
+        }
+        milestone(2)
       }
     }
     // deploy production
     stage('Production Deployment') {
       agent {
-        label 'docker-build-cn'
+        label 'k8s'
       }
       when {
         tag "v*"
@@ -99,7 +106,6 @@ pipeline {
       steps {
         echo 'product deploy'
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}:${env.BRANCH_NAME}"
-        echo "kubectl set image deployment_name=${env.IMAGE_REPO}:${tag}"
       }
     }
 
