@@ -80,7 +80,7 @@ pipeline {
           catch (exc) {
             currentBuild.result = "FAILED"
             notifyFailed()
-            throw
+            throw exc
           }
         }
         echo 'publish image'
