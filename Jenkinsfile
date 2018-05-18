@@ -3,7 +3,8 @@ pipeline {
   agent none
 
   environment {
-    IMAGE_REPO = "registry.astarup.com:5000/helloworld"
+    IMAGE_REPO = "registry.astarup.com:5000/"
+    IMAGE_NAME = "HELLO_WORLD_PRO"
   }
   stages {
     // clone remote repo step
@@ -63,7 +64,7 @@ pipeline {
           }
         }
         script {
-          app = docker.build("helloworld")
+          app = docker.build("${env.IMAGE_NAME}")
           docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
             if ( env.BRANCH_NAME == 'staging') {
               app.push("${BRANCH_NAME}-${BUILD_ID}")
