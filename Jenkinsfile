@@ -36,10 +36,12 @@ pipeline {
 
       }
       steps {
-/*        when {
+/
+        when {
           expression { env.BRANCH_NAME ==~ /v.*/}
          sh "git describe --tags --abbrev=0 > .git/tag-id"
-*/        }
+        }
+/
         echo 'publish image'
       }
     }
