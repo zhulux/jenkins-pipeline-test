@@ -50,7 +50,6 @@ pipeline {
         //tag_name = readFile('.git/tag-name').trim()
       }
       steps {
-        echo tag
         script {
           if ( env.BRANCH_NAME ==~ /v.*/ ) {
             tag_name = BRANCH_NAME
