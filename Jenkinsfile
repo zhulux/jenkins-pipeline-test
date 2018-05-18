@@ -1,7 +1,7 @@
 #!groovy
 pipeline {
   agent none
-
+// Global environment affect pipeline scope
   environment {
     IMAGE_REPO = "registry.astarup.com:5000"
     IMAGE_NAME = "pro_hello"
@@ -76,6 +76,7 @@ pipeline {
           }
         }
         echo 'publish image'
+        notifySuccessful()
       }
 
     }
@@ -135,14 +136,24 @@ pipeline {
         echo 'product deploy'
         echo "${env.IMAGE_NAME}"
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME}"
-        function_ls()
+        //function_ls()
       }
     }
-
-
   }
 
+
 }
-void function_ls() {
-  sh "echo HELLO WORLD"
+
+// custom define function
+//void function_ls() {
+//  sh "echo HELLO WORLD"
+//}
+
+void notifySuccessful() {
+  emailext (
+    subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+    body: """<p>SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+      <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
+    recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+    )
 }
