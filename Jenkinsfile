@@ -45,12 +45,12 @@ pipeline {
       }
       environment {
         commit_id = readFile('.git/commit-id').trim()
-        tag_name = readFile('.git/tag-name').trim()
+        //tag_name = readFile('.git/tag-name').trim()
       }
       steps {
         script {
           if ( env.BRANCH_NAME ==~ /v.*/ ) {
-            tag_name = BRANCH_NAME
+            tag_name = tag
             echo tag_name
           }
         }
