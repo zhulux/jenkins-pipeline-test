@@ -35,6 +35,9 @@ pipeline {
     stage('Test image') {
       agent {
         label 'docker-build-cn'
+        options {
+          skipDefaultCheckout()
+        }
       }
       steps {
         echo 'TODO: add tests'
@@ -44,6 +47,9 @@ pipeline {
     stage('Publish Image to Registry') {
       agent {
         label 'docker-build-cn'
+        options {
+          skipDefaultCheckout()
+        }
       }
       environment {
         commit_id = readFile('.git/commit-id').trim()
@@ -83,6 +89,9 @@ pipeline {
     stage('Go for Production?') {
       agent {
         label 'docker-build-cn'
+        options {
+          skipDefaultCheckout()
+        }
       }
       when {
         tag "v*"
@@ -99,6 +108,9 @@ pipeline {
     stage('Production Deployment') {
       agent {
         label 'k8s'
+        options {
+          skipDefaultCheckout()
+        }
       }
       when {
         tag "v*"
