@@ -19,6 +19,8 @@ pipeline {
               sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
             } else if(env.BRANCH_NAME ==~ /v.*/ ) {
               sh "git describe --tags --abbrev=0 > .git/tag-name"
+              sh "git rev-parse HEAD > .git/commit-id"
+              sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
             }
           }
           catch (exc) {
