@@ -135,10 +135,14 @@ pipeline {
         echo 'product deploy'
         echo "${env.IMAGE_NAME}"
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME}"
+        function_ls()
       }
     }
 
 
   }
 
+}
+void function_ls() {
+  sh "echo HELLO WORLD"
 }
