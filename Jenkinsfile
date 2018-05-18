@@ -85,7 +85,7 @@ pipeline {
       }
       steps {
         echo 'stage deploy'
-        echo 'kubectl set image deployment_name=${IMAGE_REPO}:${BUILD_ID}'
+        echo "kubectl set image deployment_name=${IMAGE_REPO}:${BUILD_ID}"
       }
     }
     // deploy production
@@ -98,9 +98,9 @@ pipeline {
       }
       steps {
         echo 'product deploy'
-        echo '${tag}'
-        echo 'kubectl set image deployment_name=${IMAGE_REPO}:${BRANCH_NAME}'
-        echo 'kubectl set image deployment_name=${IMAGE_REPO}:${tag}'
+        echo "${tag}"
+        echo "kubectl set image deployment_name=${IMAGE_REPO}:${BRANCH_NAME}"
+        echo "kubectl set image deployment_name=${IMAGE_REPO}:${tag}"
       }
     }
 
