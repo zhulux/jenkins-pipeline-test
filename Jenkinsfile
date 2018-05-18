@@ -12,7 +12,7 @@ pipeline {
         label 'docker-build-cn'
       }
 
-      when { branch == staging }
+      when { branch 'staging' }
         steps {
           checkout scm
           sh "git rev-parse HEAD > .git/commit-id"
