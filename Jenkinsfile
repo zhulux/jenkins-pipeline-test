@@ -15,6 +15,7 @@ pipeline {
         checkout scm
         sh "git rev-parse HEAD > .git/commit-id"
         sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
+        sh "git describe --tags --abbrev=0 > .git/tag-id"
       }
     }
     // test image inside service
@@ -33,7 +34,7 @@ pipeline {
       }
       environment {
         commit_id = readFile('.git/commit-id').trim()
-
+        tag_id = readFile('.git/tag-id').trim()
       }
       steps {
         //when {
@@ -41,7 +42,14 @@ pipeline {
          //sh "git describe --tags --abbrev=0 > .git/tag-id"
         //}
         echo 'publish image'
+        echo commit_id
+        echo tag_id
+
+        //docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
+        //  app.push("${BRANCH_NAME}-${BUILD_ID}")
+        //}
       }
+
     }
 
     // deploy image to staging
