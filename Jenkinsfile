@@ -71,6 +71,9 @@ pipeline {
       agent {
         label 'docker-build-cn'
       }
+      when {
+        branch 'staging'
+      }
       steps {
         echo 'stage deploy'
       }
@@ -88,6 +91,9 @@ pipeline {
     stage('Production Deployment') {
       agent {
         label 'docker-build-cn'
+      }
+      when {
+        tag "v.*"
       }
       steps {
         echo 'product deploy'
