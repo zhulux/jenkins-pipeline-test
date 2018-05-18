@@ -81,7 +81,7 @@ pipeline {
     // deploy image to staging
     stage('Staging Deployment') {
       agent {
-        label 'docker-build-cn'
+        label 'k8s'
       }
       options {
         skipDefaultCheckout()
@@ -102,7 +102,7 @@ pipeline {
     // approve deploy product ?
     stage('Go for Production?') {
       agent {
-        label 'docker-build-cn'
+        label 'k8s'
       }
       options {
         skipDefaultCheckout()
