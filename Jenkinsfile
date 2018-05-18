@@ -11,11 +11,7 @@ pipeline {
       agent {
         label 'docker-build-cn'
       }
-      when { branch ==~ 'v.*' }
-      steps {
-        checkout scm
-        sh "git describe --tags --abbrev=0 > .git/tag-id"
-      }
+
       when { branch == staging }
       steps {
         checkout scm
