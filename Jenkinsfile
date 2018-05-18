@@ -93,7 +93,7 @@ pipeline {
         label 'docker-build-cn'
       }
       when {
-        tag "v.*"
+        tag "v*"
       }
       steps {
         echo 'product deploy'
