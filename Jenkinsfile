@@ -3,7 +3,7 @@ pipeline {
   agent none
 
   environment {
-    IMAGE_REPO = "registry.astarup.com:5000/"
+    IMAGE_REPO = "registry.astarup.com:5000"
     IMAGE_NAME = "pro_hello"
   }
   stages {
@@ -91,6 +91,11 @@ pipeline {
       }
       steps {
         echo 'stage deploy'
+        milestone(1)
+        timeout(time:2, unit:'MINUTES'){
+          input 'Deploy to Staging?'
+        }
+        milestone(2)
         echo "kubectl set image deployment_name=${IMAGE_REPO}:${BUILD_ID}"
       }
     }
@@ -126,7 +131,8 @@ pipeline {
       }
       steps {
         echo 'product deploy'
-        echo "kubectl set image deployment_name=${env.IMAGE_REPO}:${env.BRANCH_NAME}"
+        echo "${env.IMAGE_NAME}"
+        echo "kubectl set image deployment_name=${env.IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME}"
       }
     }
 
