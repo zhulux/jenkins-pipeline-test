@@ -13,7 +13,7 @@ pipeline {
       }
       steps {
         script {
-          if ( branch == 'staging' ) {
+          if ( env.BRANCH_NAME == 'staging' ) {
             sh "git rev-parse HEAD > .git/commit-id"
             sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
           } else if(env.BRANCH_NAME ==~ /v.*/ ) {
