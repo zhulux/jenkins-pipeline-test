@@ -11,7 +11,9 @@ pipeline {
       agent {
         label 'docker-build-cn'
       }
-      checkout scm
+      steps {
+        checkout scm
+      }
       when { branch 'staging' }
         steps {
           sh "git rev-parse HEAD > .git/commit-id"
