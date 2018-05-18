@@ -3,6 +3,7 @@ pipeline {
   agent none
 // Global environment affect pipeline scope
   environment {
+    HTTP_PROXY = "http://www.google.com"
     IMAGE_REPO = "registry.astarup.com:5000"
     IMAGE_NAME = "pro_hello"
   }
@@ -66,7 +67,7 @@ pipeline {
         script {
           try {
             retry(3) {
-              app = docker.build("${env.IMAGE_NAME}")
+              app = docker.build("${env.IMAGE_NAME}","--build-arg http_proxy=${env.HTTP_PROXY} .")
               docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
                 if ( env.BRANCH_NAME == 'staging') {
                   app.push("${BRANCH_NAME}-${BUILD_ID}")
