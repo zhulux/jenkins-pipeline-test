@@ -11,16 +11,15 @@ pipeline {
       agent {
         label 'docker-build-cn'
       }
-      steps {
-        checkout scm
-      }
       when { branch 'staging' }
         steps {
+          checkout scm
           sh "git rev-parse HEAD > .git/commit-id"
           sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
         }
       when { tag "v.*" }
         steps {
+          checkout scm
           sh "git describe --tags --abbrev=0 > .git/tag-id"
         }
     }
