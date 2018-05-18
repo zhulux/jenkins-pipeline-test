@@ -16,7 +16,7 @@ pipeline {
         sh "git rev-parse HEAD > .git/commit-id"
         sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
       }
-      when { branch == master }
+      when { branch master }
       steps {
         sh "git describe --tags --abbrev=0 > .git/tag-id"
       }
