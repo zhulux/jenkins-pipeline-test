@@ -64,19 +64,27 @@ pipeline {
           }
         }
         script {
-          app = docker.build("${env.IMAGE_NAME}")
-          retry(3) {
-            docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
-              if ( env.BRANCH_NAME == 'staging') {
-                app.push("${BRANCH_NAME}-${BUILD_ID}")
-              }else if( env.BRANCH_NAME ==~ /v.*/ ){
-                app.push("${BRANCH_NAME}")
+          try {
+            retry(3) {
+              app = docker.build("${env.IMAGE_NAME}")
+              docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
+                if ( env.BRANCH_NAME == 'staging') {
+                  app.push("${BRANCH_NAME}-${BUILD_ID}")
+                }else if( env.BRANCH_NAME ==~ /v.*/ ){
+                  app.push("${BRANCH_NAME}")
+                }
               }
             }
+            notifySuccessful()
+          }
+          catch (exc) {
+            currentBuild.result = "FAILED"
+            notifyFailed()
+            throw
           }
         }
         echo 'publish image'
-        notifySuccessful()
+
       }
 
     }
@@ -150,6 +158,16 @@ pipeline {
 //}
 
 void notifySuccessful() {
+  emailext (
+    to: "jianguohan@zhulux.com",
+    subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+    body: """<p>SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+      <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
+    recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+    )
+}
+
+void notifyFailed() {
   emailext (
     to: "jianguohan@zhulux.com",
     subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
