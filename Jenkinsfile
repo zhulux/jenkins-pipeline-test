@@ -6,21 +6,26 @@ pipeline {
     IMAGE_REPO = "registry.astarup.com:5000/helloworld"
   }
   stages {
-    // clone repo step
+    // clone remote repo step
     stage('Clone Repository') {
       agent {
         label 'docker-build-cn'
       }
       steps {
         script {
-          if ( env.BRANCH_NAME == 'staging' ) {
-            sh "git rev-parse HEAD > .git/commit-id"
-            sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
-          } else if(env.BRANCH_NAME ==~ /v.*/ ) {
-            sh "git describe --tags --abbrev=0 > .git/tag-id"
+          try {
+            if ( env.BRANCH_NAME == 'staging' ) {
+              sh "git rev-parse HEAD > .git/commit-id"
+              sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
+            } else if(env.BRANCH_NAME ==~ /v.*/ ) {
+              sh "git describe --tags --abbrev=0 > .git/tag-name"
+            }
+          }
+          catch (exc) {
+            echo "Because current work branch is ${env.BRANCH_NAME},Can be ignored."
           }
 
-          }
+        }
       }
     }
 
@@ -40,16 +45,17 @@ pipeline {
       }
       environment {
         commit_id = readFile('.git/commit-id').trim()
-        tag_id = readFile('.git/tag-id').trim()
+        tag_name = readFile('.git/tag-name').trim()
       }
       steps {
-        //when {
-          //expression { env.BRANCH_NAME ==~ /v.*/}
-         //sh "git describe --tags --abbrev=0 > .git/tag-id"
-        //}
+        script {
+          if ( env.BRANCH_NAME ==~ /v.*/ ) {
+            tag_name = BRANCH_NAME
+            echo tag_name
+          }
+        }
+
         echo 'publish image'
-        echo commit_id
-        echo tag_id
 
         //docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
         //  app.push("${BRANCH_NAME}-${BUILD_ID}")
