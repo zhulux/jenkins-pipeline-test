@@ -13,11 +13,11 @@ pipeline {
       }
 
       when { branch == staging }
-      steps {
-        checkout scm
-        sh "git rev-parse HEAD > .git/commit-id"
-        sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
-      }
+        steps {
+          checkout scm
+          sh "git rev-parse HEAD > .git/commit-id"
+          sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
+        }
     }
     // test image inside service
     stage('Test image') {
