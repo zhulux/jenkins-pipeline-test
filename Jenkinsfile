@@ -64,6 +64,7 @@ pipeline {
         }
 
         echo 'publish image'
+      }
       steps {
         script {
           app = docker.build("helloworld")
@@ -78,7 +79,7 @@ pipeline {
          //docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
          //   app.push("${BRANCH_NAME}-${BUILD_ID}")
          //}
-       }
+
 
       }
 
