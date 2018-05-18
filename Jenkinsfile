@@ -4,7 +4,7 @@ pipeline {
 
   environment {
     IMAGE_REPO = "registry.astarup.com:5000/"
-    IMAGE_NAME = "HELLO_WORLD_PRO"
+    IMAGE_NAME = "pro_hello"
   }
   stages {
     // clone remote repo step
