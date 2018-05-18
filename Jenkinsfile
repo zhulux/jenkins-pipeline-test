@@ -98,7 +98,6 @@ pipeline {
       }
       steps {
         echo 'product deploy'
-        echo "${tag}"
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}:${env.BRANCH_NAME}"
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}:${tag}"
       }
