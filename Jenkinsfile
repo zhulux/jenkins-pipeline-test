@@ -96,7 +96,7 @@ pipeline {
           input 'Deploy to Staging?'
         }
         milestone(2)
-        echo "kubectl set image deployment_name=${IMAGE_REPO}:${BUILD_ID}"
+        echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BUILD_ID}"
       }
     }
     // approve deploy product ?
