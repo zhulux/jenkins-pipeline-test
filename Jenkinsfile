@@ -7,6 +7,7 @@ pipeline {
     IMAGE_REPO = "registry.astarup.com:5000"
     IMAGE_NAME = "pro_hello"
     DEPLOYMENT_NAME = "helloworld"
+    DEPLOYMENT_NAME_PROD = "helloworld-prod"
     CONTAINER_NAME = "helloworld"
     
   }
@@ -152,7 +153,7 @@ pipeline {
         echo "${env.IMAGE_NAME}"
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME}"
         sh "kubectl config use-context devadmin-context --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        sh "kubectl set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${env.IMAGE_NAME}:{env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        sh "kubectl set image deployment ${DEPLOYMENT_NAME_PROD} ${CONTAINER_NAME}=${env.IMAGE_NAME}:{env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
       }
     }
   }
