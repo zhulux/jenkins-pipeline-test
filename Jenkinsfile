@@ -3,7 +3,7 @@ pipeline {
   agent none
 // Global environment affect pipeline scope
   environment {
-    HTTP_PROXY = "http://www.google.com"
+    HTTP_PROXY = ""
     IMAGE_REPO = "registry.astarup.com:5000"
     IMAGE_NAME = "pro_hello"
     DEPLOYMENT_NAME = "helloworld"
