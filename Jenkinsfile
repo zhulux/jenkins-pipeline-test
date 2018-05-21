@@ -96,7 +96,7 @@ pipeline {
     // deploy image to staging
     stage('Staging Deployment') {
       agent {
-        label 'k8s'
+        label 'docker-build-cn'
       }
       options {
         skipDefaultCheckout()
