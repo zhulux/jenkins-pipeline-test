@@ -113,7 +113,7 @@ pipeline {
         milestone(2)
         echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BUILD_ID}"
         sh "kubectl config use-context kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        sh "kubectl set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_REPO}/${IMAGE_NAME}:${BUILD_ID} --namespace staging --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        sh "kubectl set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID} --namespace staging --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
       
       }
     }
