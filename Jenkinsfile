@@ -6,6 +6,9 @@ pipeline {
     HTTP_PROXY = "http://www.google.com"
     IMAGE_REPO = "registry.astarup.com:5000"
     IMAGE_NAME = "pro_hello"
+    DEPLOYMENT_NAME = "helloworld"
+    CONTAINER_NAME = "helloworld"
+    
   }
   stages {
     // clone remote repo step
@@ -109,6 +112,9 @@ pipeline {
         }
         milestone(2)
         echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BUILD_ID}"
+        sh "kubectl config use-context kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        sh "kubectl set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_NAME}:{BUILD_ID} --namespace staging --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+      
       }
     }
     // approve deploy product ?
@@ -145,7 +151,8 @@ pipeline {
         echo 'product deploy'
         echo "${env.IMAGE_NAME}"
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME}"
-        //function_ls()
+        sh "kubectl config use-context devadmin-context --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        sh "kubectl set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${env.IMAGE_NAME}:{env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
       }
     }
   }
@@ -153,10 +160,8 @@ pipeline {
 
 }
 
+
 // custom define function
-//void function_ls() {
-//  sh "echo HELLO WORLD"
-//}
 
 void notifySuccessful() {
   emailext (
