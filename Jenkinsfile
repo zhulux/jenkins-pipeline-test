@@ -53,7 +53,7 @@ pipeline {
       }
     }
 
-    stage(){
+    stage('preceding sh') {
       agent { label 'docker-build-cn' }
       options { skipDefaultCheckout() }
       steps {
@@ -61,7 +61,7 @@ pipeline {
       }
     }
 
-    stage(){
+    stage('init loop') {
       agent { label 'docker-build-cn' }
       options { skipDefaultCheckout() }
       steps {
