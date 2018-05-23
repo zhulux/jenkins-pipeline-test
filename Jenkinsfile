@@ -9,6 +9,7 @@ pipeline {
     DEPLOYMENT_NAME = "helloworld"
     DEPLOYMENT_NAME_PROD = "helloworld-prod"
     CONTAINER_NAME = "helloworld"
+    MULTI_DEPLOYMENT = ['first', 'second', 'three']
     
   }
   stages {
@@ -35,6 +36,10 @@ pipeline {
 
         }
       }
+    }
+
+    stage('Loop test') {
+      echo_all(MULTI_DEPLOYMENT)
     }
 
     // test image inside service
@@ -182,4 +187,11 @@ void notifyFailed() {
       <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
     )
+}
+
+
+void echo_all(list) {
+  list.each {
+    item -> echo "hello ${item}"
+  }
 }
