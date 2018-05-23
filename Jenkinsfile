@@ -53,6 +53,23 @@ pipeline {
       }
     }
 
+    stage(){
+      agent { label 'docker-build-cn' }
+      options { skipDefaultCheckout() }
+      steps {
+        loop_with_preceding_sh(MULTI_DEPLOYMENT)
+      }
+    }
+
+    stage(){
+      agent { label 'docker-build-cn' }
+      options { skipDefaultCheckout() }
+      steps {
+        traditional_int_for_loop(MULTI_DEPLOYMENT)
+      }
+
+    }
+
     // test image inside service
     stage('Test image') {
       agent {
@@ -211,5 +228,22 @@ void loop_of_sh(list) {
   list.each {
     item ->
     sh "echo Hello ${item}"
+  }
+}
+
+
+
+
+void loop_with_preceding_sh(list) {
+  sh "echo Going to echo a list"
+  list.each {
+    item -> sh "echo hello ${item}"
+  }
+}
+
+void traditional_int_for_loop(list) {
+  sh "echo Going to echo a list"
+  for (int i = 0; i < list.size(); i++) {
+    sh "echo Hello ${list[i]}"
   }
 }
