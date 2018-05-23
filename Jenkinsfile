@@ -1,4 +1,6 @@
 #!groovy
+
+def MULTI_DEPLOYMENT = ['first', 'second', 'three']
 pipeline {
   agent none
 // Global environment affect pipeline scope
@@ -9,7 +11,7 @@ pipeline {
     DEPLOYMENT_NAME = "helloworld"
     DEPLOYMENT_NAME_PROD = "helloworld-prod"
     CONTAINER_NAME = "helloworld"
-    MULTI_DEPLOYMENT = ['first', 'second', 'three']
+   // MULTI_DEPLOYMENT = ['first', 'second', 'three']
     
   }
   stages {
