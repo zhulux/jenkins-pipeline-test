@@ -41,7 +41,9 @@ pipeline {
     }
 
     stage('Loop test') {
-      echo_all(MULTI_DEPLOYMENT)
+      steps {
+        echo_all(MULTI_DEPLOYMENT)
+      }
     }
 
     // test image inside service
