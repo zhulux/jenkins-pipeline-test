@@ -40,9 +40,15 @@ pipeline {
       }
     }
 
-    stage('Loop test') {
+    stage('Loop test echo') {
       steps {
         echo_all(MULTI_DEPLOYMENT)
+      }
+    }
+
+    stage('Loop sh') {
+      steps {
+        loop_of_sh(MULTI_DEPLOYMENT)
       }
     }
 
@@ -197,5 +203,12 @@ void notifyFailed() {
 void echo_all(list) {
   list.each {
     item -> echo "hello ${item}"
+  }
+}
+
+void loop_of_sh(list) {
+  list.each {
+    item ->
+    sh "echo Hello ${item}"
   }
 }
