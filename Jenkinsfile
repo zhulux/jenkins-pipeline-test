@@ -45,8 +45,9 @@ pipeline {
         echo_all(MULTI_DEPLOYMENT)
       }
     }
-
+    // Note: exec sh must have agent or node
     stage('Loop sh') {
+      agent { label 'docker-build-cn' }
       steps {
         loop_of_sh(MULTI_DEPLOYMENT)
       }
