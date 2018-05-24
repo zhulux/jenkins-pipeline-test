@@ -1,18 +1,17 @@
 #!groovy
+//handle multi deployment same image
+def STAGING_DEPLOY_CONTAINER = ["optimus-optimus":"optimus-optimus1", "optimus-sidekiq":"optimus-sidekiq1", "optimus-faktory":"optimus-faktory1", "optimus-sidekiq-slow":"optimus-sidekiq-slow1"]
 
-def MULTI_DEPLOYMENT = ['first', 'second', 'three']
+
 pipeline {
   agent none
 // Global environment affect pipeline scope
   environment {
-    HTTP_PROXY = ""
-    IMAGE_REPO = "registry.astarup.com:5000"
+    IMAGE_REPO = "registry.astarup.com"
     IMAGE_NAME = "pro_hello"
     DEPLOYMENT_NAME = "helloworld"
     DEPLOYMENT_NAME_PROD = "helloworld-prod"
     CONTAINER_NAME = "helloworld"
-   // MULTI_DEPLOYMENT = ['first', 'second', 'three']
-    
   }
   stages {
     // clone remote repo step
@@ -20,52 +19,15 @@ pipeline {
       agent {
         label 'docker-build-cn'
       }
-      steps {
-        script {
-          try {
-            if ( env.BRANCH_NAME == 'staging' ) {
-              sh "git rev-parse HEAD > .git/commit-id"
-              sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
-            } else if(env.BRANCH_NAME ==~ /v.*/ ) {
-              sh "git describe --tags --abbrev=0 > .git/tag-name"
-              sh "git rev-parse HEAD > .git/commit-id"
-              sh "echo -n `git rev-parse HEAD` | head -c 7 > .git/commit-id"
-            }
-          }
-          catch (exc) {
-            echo "Because current work branch is ${env.BRANCH_NAME},Can be ignored."
-          }
-
-        }
-      }
     }
 
-    stage('Loop test echo') {
-      steps {
-        echo_all(MULTI_DEPLOYMENT)
-      }
-    }
     // Note: exec sh must have agent or node
-    stage('Loop sh') {
-      agent { label 'docker-build-cn' }
-      steps {
-        loop_of_sh(MULTI_DEPLOYMENT)
-      }
-    }
 
-    stage('preceding sh') {
+    stage('loop deploy service') {
       agent { label 'docker-build-cn' }
       options { skipDefaultCheckout() }
       steps {
-        loop_with_preceding_sh(MULTI_DEPLOYMENT)
-      }
-    }
-
-    stage('init loop') {
-      agent { label 'docker-build-cn' }
-      options { skipDefaultCheckout() }
-      steps {
-        traditional_int_for_loop(MULTI_DEPLOYMENT)
+        multi_deploy(STAGING_DEPLOY_CONTAINER)
       }
 
     }
@@ -199,8 +161,8 @@ pipeline {
 
 void notifySuccessful() {
   emailext (
-    to: "jianguohan@zhulux.com",
-    subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+    to: "jianguohan@zhulux.com,${env.CHANGE_AUTHOR_EMAIL}",
+    subject: "构建成功: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
     body: """<p>SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
       <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
@@ -209,41 +171,24 @@ void notifySuccessful() {
 
 void notifyFailed() {
   emailext (
-    to: "jianguohan@zhulux.com",
-    subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
-    body: """<p>SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+    to: "jianguohan@zhulux.com,${env.CHANGE_AUTHOR_EMAIL}",
+    subject: "构建失败: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+    body: """<p>Failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
       <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
     )
 }
 
-
-void echo_all(list) {
-  list.each {
-    item -> echo "hello ${item}"
-  }
-}
-
-void loop_of_sh(list) {
-  list.each {
-    item ->
-    sh "echo Hello ${item}"
-  }
-}
+//void multi_deploy(song_list) {
+//  sh "echo Going to echo a list"
+//  for (int i = 0; i < sone_list.size(); i++) {
+//    sh "echo Hello ${sone_list[i]}"
+//  }
+//}
 
 
-
-
-void loop_with_preceding_sh(list) {
-  sh "echo Going to echo a list"
-  list.each {
-    item -> sh "echo hello ${item}"
-  }
-}
-
-void traditional_int_for_loop(list) {
-  sh "echo Going to echo a list"
-  for (int i = 0; i < list.size(); i++) {
-    sh "echo Hello ${list[i]}"
+void multi_deploy(song_list) {
+  song_list.each { key, value ->
+    println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config$ "
   }
 }
