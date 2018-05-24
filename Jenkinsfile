@@ -192,7 +192,7 @@ void notifyFailed() {
 
 void multi_deploy(song_list) {
   song_list.each { key, value ->
-//    println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}${IMAGE_NAME}:${BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config$ "
+  println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}${IMAGE_NAME}:${BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
   println "kubectl set image deployment ${key} ${value}"
   }
 }
