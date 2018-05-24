@@ -30,7 +30,7 @@ pipeline {
       agent { label 'docker-build-cn' }
       options { skipDefaultCheckout() }
       steps {
-        multi_deploy(STAGING_DEPLOY_CONTAINER, staging)
+        multi_deploy(STAGING_DEPLOY_CONTAINER, 'staging')
       }
 
     }
@@ -40,7 +40,7 @@ pipeline {
       agent { label 'docker-build-cn' }
       options { skipDefaultCheckout() }
       steps {
-        multi_deploy(STAGING_DEPLOY_CONTAINER, production)
+        multi_deploy(STAGING_DEPLOY_CONTAINER, 'production')
       }
     }
 
