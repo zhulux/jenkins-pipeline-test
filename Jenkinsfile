@@ -26,13 +26,22 @@ pipeline {
 
     // Note: exec sh must have agent or node
 
-    stage('loop deploy service') {
+    stage('specify staging ') {
       agent { label 'docker-build-cn' }
       options { skipDefaultCheckout() }
       steps {
-        multi_deploy(STAGING_DEPLOY_CONTAINER)
+        multi_deploy(STAGING_DEPLOY_CONTAINER, staging)
       }
 
+    }
+
+
+    stage('PRODUCTION deploy service') {
+      agent { label 'docker-build-cn' }
+      options { skipDefaultCheckout() }
+      steps {
+        multi_deploy(STAGING_DEPLOY_CONTAINER, production)
+      }
     }
 
     // test image inside service
@@ -190,9 +199,8 @@ void notifyFailed() {
 //}
 
 
-void multi_deploy(song_list) {
+void multi_deploy(song_list, namespace='staging') {
   song_list.each { key, value ->
-  println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}${IMAGE_NAME}:${BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-  println "kubectl set image deployment ${key} ${value}"
+  println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
   }
 }
