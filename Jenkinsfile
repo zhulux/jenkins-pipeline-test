@@ -19,6 +19,9 @@ pipeline {
       agent {
         label 'docker-build-cn'
       }
+      steps {
+        multi_deploy(STAGING_DEPLOY_CONTAINER)
+      }
     }
 
     // Note: exec sh must have agent or node
