@@ -14,11 +14,17 @@ pipeline {
   agent none
 // Global environment affect pipeline scope
   environment {
-    IMAGE_REPO = "registry.astarup.com"
+    IMAGE_REPO = "registry.astarup.com/astarup"
     IMAGE_NAME = "pro_hello"
     DEPLOYMENT_NAME = "helloworld"
     DEPLOYMENT_NAME_PROD = "helloworld-prod"
     CONTAINER_NAME = "helloworld"
+    DOCKER_REGISTRY_CREDENTIALSID = "8e212ee4-a5ca-48f0-9822-2a3af5fa17da"
+    DOCKER_REGISTRY_URL = "https://registry.astarup.com/"
+    GEM_SERVER = "https://zhulux.com/private-test"
+    PUSH_KEY = "123456789"
+    DAO_COMMIT_TAG = "od-ddd"
+    
   }
   stages {
     // clone remote repo step
@@ -30,6 +36,22 @@ pipeline {
         multi_deploy(STAGING_DEPLOY_CONTAINER)
       }
     }
+
+
+    stage('od gem build & push') {
+      agent { 
+        docker { image 'ruby:2.4.2' } 
+      }
+      when {
+        tag "od*"
+      }
+      steps {
+        sh "./dao-od-gem.sh"
+        sh "echo Done."
+      }
+
+    }
+
 
     // Note: exec sh must have agent or node
 
