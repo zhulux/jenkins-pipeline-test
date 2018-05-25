@@ -5,6 +5,8 @@
 echo ":push-key: $PUSH_KEY" > ~/.gem/credentials
 chmod 600 ~/.gem/credentials
 cd ./optimus_data
+echo $PUSH_KEY
+echo $GEM_SERVER
 
 # just triggered by tags: od-66.xx.xx
 version=$(echo $DAO_COMMIT_TAG | cut -d - -f 2)
