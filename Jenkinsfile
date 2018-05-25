@@ -46,6 +46,8 @@ pipeline {
         tag "od*"
       }
       steps {
+        sh "ls -la"
+        sh "pwd"
         sh "./dao-od-gem.sh"
         sh "echo Done."
       }
