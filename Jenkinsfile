@@ -1,7 +1,14 @@
 #!groovy
 //handle multi deployment same image
-def STAGING_DEPLOY_CONTAINER = ["optimus-optimus":"optimus-optimus1", "optimus-sidekiq":"optimus-sidekiq1", "optimus-faktory":"optimus-faktory1", "optimus-sidekiq-slow":"optimus-sidekiq-slow1"]
+//def STAGING_DEPLOY_CONTAINER = ["optimus-optimus":"optimus-optimus1", "optimus-sidekiq":"optimus-sidekiq1", "optimus-faktory":"optimus-faktory1", "optimus-sidekiq-slow":"optimus-sidekiq-slow1"]
 
+
+def DEP_DB_MIGRATE_DEPLOY = ["optimus-optimus":"optimus-optimus"]
+def DEP_DB_MIGRATE_DEPLOY_PROD = ["optimus-optimus":"optimus-optimus"]
+
+//handle multi deployment same image
+def STAGING_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
+def PRODUCT_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
 
 pipeline {
   agent none
@@ -30,6 +37,8 @@ pipeline {
       agent { label 'docker-build-cn' }
       options { skipDefaultCheckout() }
       steps {
+        multi_deploy(DEP_DB_MIGRATE_DEPLOY)
+        sh "sleep 10"
         multi_deploy(STAGING_DEPLOY_CONTAINER, 'staging')
       }
 
@@ -40,7 +49,9 @@ pipeline {
       agent { label 'docker-build-cn' }
       options { skipDefaultCheckout() }
       steps {
-        multi_deploy(STAGING_DEPLOY_CONTAINER, 'production')
+        multi_deploy(DEP_DB_MIGRATE_DEPLOY_PROD, 'production')
+        sh "sleep 20"
+        multi_deploy(PRODUCT_DEPLOY_CONTAINER, 'production')
       }
     }
 
