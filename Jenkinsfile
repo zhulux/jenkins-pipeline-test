@@ -23,7 +23,7 @@ pipeline {
     DOCKER_REGISTRY_URL = "https://registry.astarup.com/"
     GEM_SERVER = "https://zhulux.com/private-test"
     PUSH_KEY = "123456789"
-    DAO_COMMIT_TAG = "od-ddd"
+    DAO_COMMIT_TAG = "${BRANCH_NAME}"
     
   }
   stages {

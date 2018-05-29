@@ -14,6 +14,7 @@ chmod 600 ~/.gem/credentials
 cd optimus_data
 echo $PUSH_KEY
 echo $GEM_SERVER
+echo $BRANCH_NAME
 
 # just triggered by tags: od-66.xx.xx
 version=$(echo $DAO_COMMIT_TAG | cut -d - -f 2)
