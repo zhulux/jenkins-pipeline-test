@@ -102,6 +102,9 @@ pipeline {
       options {
         skipDefaultCheckout()
       }
+      when {
+        anyOf { branch 'staging'; tag 'v*' }
+      }
       environment {
         commit_id = readFile('.git/commit-id').trim()
         //tag_name = readFile('.git/tag-name').trim()
