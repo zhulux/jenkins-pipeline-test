@@ -145,7 +145,8 @@ pipeline {
     // deploy image to staging
     stage('Staging Deployment') {
       agent {
-        label 'k8s-publish'
+        //label 'k8s-publish'
+        label 'docker-build-cn'
       }
       options {
         skipDefaultCheckout()
@@ -161,15 +162,16 @@ pipeline {
         }
         milestone(2)
         echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BUILD_ID}"
-        sh "kubectl config use-context kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        sh "kubectl set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID} --namespace staging --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        //sh "kubectl config use-context kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        //sh "kubectl set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID} --namespace staging --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
       
       }
     }
     // approve deploy product ?
     stage('Go for Production?') {
       agent {
-        label 'k8s-publish'
+        //label 'k8s-publish'
+        label 'docker-build-cn'
       }
       options {
         skipDefaultCheckout()
@@ -200,8 +202,8 @@ pipeline {
         echo 'product deploy'
         echo "${env.IMAGE_NAME}"
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME}"
-        sh "kubectl config use-context devadmin-context --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        sh "kubectl set image deployment ${DEPLOYMENT_NAME_PROD} ${CONTAINER_NAME}=${IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        //sh "kubectl config use-context devadmin-context --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        //sh "kubectl set image deployment ${DEPLOYMENT_NAME_PROD} ${CONTAINER_NAME}=${IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
       }
     }
   }
