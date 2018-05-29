@@ -10,6 +10,9 @@ def DEP_DB_MIGRATE_DEPLOY_PROD = ["optimus-optimus":"optimus-optimus"]
 def STAGING_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
 def PRODUCT_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
 
+// build image host
+def BUILD_IMAGE_HOST = 'docker-build-cn'
+
 pipeline {
   agent none
 // Global environment affect pipeline scope
@@ -22,15 +25,16 @@ pipeline {
     DOCKER_REGISTRY_CREDENTIALSID = "8e212ee4-a5ca-48f0-9822-2a3af5fa17da"
     DOCKER_REGISTRY_URL = "https://registry.astarup.com/"
     GEM_SERVER = "https://zhulux.com/private-test"
-    PUSH_KEY = "123456789"
+    //PUSH_KEY = ""
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
+    PUSH_KEY = credentials('zhulux_gem_key')
     
   }
   stages {
     // clone remote repo step
     stage('Clone Repository') {
       agent {
-        label 'docker-build-cn'
+        label "${BUILD_IMAGE_HOST}"
       }
       steps {
         script {
@@ -39,6 +43,8 @@ pipeline {
               echo "Current branch is ${env.BRANCH_NAME}"
             } else if(env.BRANCH_NAME ==~ /v.*/ ) {
               echo "Current branch is ${env.BRANCH_NAME}"
+            } else if(env.BRANCH_NAME ==~ /od.*/ ) {
+              echo "CUrrent branch is ${env.BRANCH_NAME}"
             }
 
 
@@ -72,7 +78,7 @@ pipeline {
     // test image inside service
     stage('Test image') {
       agent {
-        label 'docker-build-cn'
+        label "${BUILD_IMAGE_HOST}"
       }
       options {
         skipDefaultCheckout()
@@ -129,7 +135,7 @@ pipeline {
     stage('Staging Deployment') {
       agent {
         //label 'k8s-publish'
-        label 'docker-build-cn'
+        label "${BUILD_IMAGE_HOST}"
       }
       options {
         skipDefaultCheckout()
@@ -155,7 +161,7 @@ pipeline {
     stage('Go for Production?') {
       agent {
         //label 'k8s-publish'
-        label 'docker-build-cn'
+        label "${BUILD_IMAGE_HOST}"
       }
       options {
         skipDefaultCheckout()
@@ -175,7 +181,7 @@ pipeline {
     stage('Production Deployment') {
       agent {
         //label 'k8s-publish'
-        label 'docker-build-cn'
+        label "${BUILD_IMAGE_HOST}"
       }
       options {
         skipDefaultCheckout()
