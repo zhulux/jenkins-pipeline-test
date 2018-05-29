@@ -6,9 +6,10 @@ ls
 pwd
 id
 ls /
-ls ~
-echo ":push-key: $PUSH_KEY" > .gem/credentials
-chmod 600 .gem/credentials
+echo "-----"
+ls -la ~
+echo ":push-key: $PUSH_KEY" > ~/.gem/credentials
+chmod 600 ~/.gem/credentials
 cd optimus_data
 echo $PUSH_KEY
 echo $GEM_SERVER
