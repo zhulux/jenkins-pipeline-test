@@ -105,10 +105,10 @@ pipeline {
       when {
         anyOf { branch 'staging'; tag 'v*' }
       }
-      environment {
-        commit_id = readFile('.git/commit-id').trim()
+      //environment {
+        //commit_id = readFile('.git/commit-id').trim()
         //tag_name = readFile('.git/tag-name').trim()
-      }
+      //}
       steps {
         script {
           if ( env.BRANCH_NAME ==~ /v.*/ ) {
