@@ -190,7 +190,8 @@ pipeline {
     // deploy production
     stage('Production Deployment') {
       agent {
-        label 'k8s-publish'
+        //label 'k8s-publish'
+        label 'docker-build-cn'
       }
       options {
         skipDefaultCheckout()
