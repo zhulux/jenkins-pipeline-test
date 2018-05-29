@@ -2,9 +2,7 @@
 // docker host list [ docker-build-bj3a、docker-build-cn ]
 
 //handle multi deployment with same image
-//def STAGING_DEPLOY_CONTAINER = ["optimus-optimus":"optimus-optimus1", "optimus-sidekiq":"optimus-sidekiq1", "optimus-faktory":"optimus-faktory1", "optimus-sidekiq-slow":"optimus-sidekiq-slow1"]
-
-
+// dep deployment optimus
 def DEP_DB_MIGRATE_DEPLOY = ["optimus-optimus":"optimus-optimus"]
 def DEP_DB_MIGRATE_DEPLOY_PROD = ["optimus-optimus":"optimus-optimus"]
 
@@ -71,29 +69,6 @@ pipeline {
 
 
     // Note: exec sh must have agent or node
-
-//    stage('specify staging ') {
-//      agent { label 'docker-build-cn' }
-//      options { skipDefaultCheckout() }
-//      steps {
-//        multi_deploy(DEP_DB_MIGRATE_DEPLOY)
-//        sh "sleep 10"
-//        multi_deploy(STAGING_DEPLOY_CONTAINER, 'staging')
-//      }
-//
-//    }
-//
-//
-//    stage('PRODUCTION deploy service') {
-//      agent { label 'docker-build-cn' }
-//      options { skipDefaultCheckout() }
-//      steps {
-//        multi_deploy_prod(DEP_DB_MIGRATE_DEPLOY_PROD, 'production')
-//        sh "sleep 20"
-//        multi_deploy(PRODUCT_DEPLOY_CONTAINER, 'production')
-//      }
-//    }
-
     // test image inside service
     stage('Test image') {
       agent {
@@ -170,8 +145,7 @@ pipeline {
         }
         milestone(2)
         echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID}"
-        //sh "kubectl config use-context kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        //sh "kubectl set image deployment ${DEPLOYMENT_NAME} ${CONTAINER_NAME}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID} --namespace staging --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+
         multi_deploy(DEP_DB_MIGRATE_DEPLOY)
         multi_deploy(STAGING_DEPLOY_CONTAINER)
       
