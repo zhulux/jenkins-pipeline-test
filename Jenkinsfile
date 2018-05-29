@@ -25,9 +25,8 @@ pipeline {
     DOCKER_REGISTRY_CREDENTIALSID = "8e212ee4-a5ca-48f0-9822-2a3af5fa17da"
     DOCKER_REGISTRY_URL = "https://registry.astarup.com/"
     GEM_SERVER = "https://zhulux.com/private-test"
-    //PUSH_KEY = ""
+    PUSH_KEY = "${ZHULUX_GEM_KEY}"
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
-    PUSH_KEY = credentials('gem_key')
     
   }
   stages {
