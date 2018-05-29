@@ -8,8 +8,9 @@ id
 ls /
 echo "-----"
 ls -la ~
-echo ":push-key: $PUSH_KEY" > ~/.gem/credentials
-chmod 600 ~/.gem/credentials
+ls -la /root
+echo ":push-key: $PUSH_KEY" > /root/.gem/credentials
+chmod 600 /root/.gem/credentials
 cd optimus_data
 echo $PUSH_KEY
 echo $GEM_SERVER
