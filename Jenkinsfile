@@ -261,7 +261,7 @@ void multi_deploy(song_list, namespace='staging') {
   }
 }
 
-void multi_deploy_product(song_list, namespace='production') {
+void multi_deploy_prod(song_list, namespace='production') {
   song_list.each { key, value ->
     println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
   }
