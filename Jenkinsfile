@@ -72,27 +72,27 @@ pipeline {
 
     // Note: exec sh must have agent or node
 
-    stage('specify staging ') {
-      agent { label 'docker-build-cn' }
-      options { skipDefaultCheckout() }
-      steps {
-        multi_deploy(DEP_DB_MIGRATE_DEPLOY)
-        sh "sleep 10"
-        multi_deploy(STAGING_DEPLOY_CONTAINER, 'staging')
-      }
-
-    }
-
-
-    stage('PRODUCTION deploy service') {
-      agent { label 'docker-build-cn' }
-      options { skipDefaultCheckout() }
-      steps {
-        multi_deploy_prod(DEP_DB_MIGRATE_DEPLOY_PROD, 'production')
-        sh "sleep 20"
-        multi_deploy(PRODUCT_DEPLOY_CONTAINER, 'production')
-      }
-    }
+//    stage('specify staging ') {
+//      agent { label 'docker-build-cn' }
+//      options { skipDefaultCheckout() }
+//      steps {
+//        multi_deploy(DEP_DB_MIGRATE_DEPLOY)
+//        sh "sleep 10"
+//        multi_deploy(STAGING_DEPLOY_CONTAINER, 'staging')
+//      }
+//
+//    }
+//
+//
+//    stage('PRODUCTION deploy service') {
+//      agent { label 'docker-build-cn' }
+//      options { skipDefaultCheckout() }
+//      steps {
+//        multi_deploy_prod(DEP_DB_MIGRATE_DEPLOY_PROD, 'production')
+//        sh "sleep 20"
+//        multi_deploy(PRODUCT_DEPLOY_CONTAINER, 'production')
+//      }
+//    }
 
     // test image inside service
     stage('Test image') {
