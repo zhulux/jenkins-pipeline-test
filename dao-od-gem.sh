@@ -2,8 +2,8 @@
 # build and push gem to private hosting server
 # NOTE: running in a standalone ruby container in CI process!
 
-echo ":push-key: $PUSH_KEY" > ~/.gem/credentials
-chmod 600 ~/.gem/credentials
+echo ":push-key: $PUSH_KEY" > .gem/credentials
+chmod 600 .gem/credentials
 cd optimus_data
 echo $PUSH_KEY
 echo $GEM_SERVER
