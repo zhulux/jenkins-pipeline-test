@@ -27,7 +27,7 @@ pipeline {
     GEM_SERVER = "https://zhulux.com/private-test"
     //PUSH_KEY = ""
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
-    PUSH_KEY = credentials('zhulux_gem_key')
+    PUSH_KEY = credentials('gem_key')
     
   }
   stages {
