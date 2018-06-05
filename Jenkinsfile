@@ -252,8 +252,8 @@ void bearychat_notify_successful() {
 }
 
 void bearychat_notify_failed() {
-  bearychatSend title: "open Jenkins ui to check Failure reason", url: "${env.BUILD_URL}"
-  bearychatSend message: " Job ${env.JOB_NAME} 执行中断,请检查ci ！", color: "#ff0000", attachmentText: "镜像构建失败"
+  //bearychatSend title: "open Jenkins ui to check Failure reason", url: "${env.BUILD_URL}"
+  bearychatSend message: " Job [${env.JOB_NAME} 执行中断,请点击这里检查！](${env.BUILD_URL})", color: "#ff0000", attachmentText: "镜像构建失败"
 }
 
 // deploy namespace notify
