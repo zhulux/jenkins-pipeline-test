@@ -197,6 +197,7 @@ pipeline {
         multi_deploy_prod(DEP_DB_MIGRATE_DEPLOY_PROD)
         multi_deploy_prod(PRODUCT_DEPLOY_CONTAINER)
         bearychat_notify_deploy_successful()
+        bearychat_notify_deploy_successful(production)
       }
     }
   }
@@ -234,7 +235,7 @@ void bearychat_notify_start() {
 }
 
 void bearychat_notify_successful() {
-  bearychatSend title: "Successful ${env.JOB_NAME} ${env.JOB_BUILD_NUMBER}", url: "${env.BUILD_URL}"
+  bearychatSend title: "Successful ${env.JOB_NAME} ${env.BUILD_NUMBER}", url: "${env.BUILD_URL}"
   bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00ff00", attachmentText: "Project: ${env.JOB_BASE_NAME},状态: 镜像构建成功, 镜像名字: ${env.IMAGE_NAME}"
 }
 
@@ -244,7 +245,7 @@ void bearychat_notify_failed() {
 
 
 void bearychat_notify_deploy_successful(namespace='staging') {
-  bearychatSend message: "Successful Deploy to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}", color: "#436EEE"
+  bearychatSend title: "Successful Deploy to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
 }
 
 //void multi_deploy(song_list) {
