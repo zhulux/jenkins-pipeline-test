@@ -247,12 +247,12 @@ void bearychat_notify_start() {
 
 // build image success or failed notify
 void bearychat_notify_successful() {
-  bearychatSend title: "Successful ${env.JOB_NAME} ${env.BUILD_NUMBER}", url: "${env.BUILD_URL}"
+  bearychatSend title: "构建成功: ${env.JOB_NAME} ${env.BUILD_NUMBER}", url: "${env.BUILD_URL}"
   bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00ff00", attachmentText: "Project: ${env.JOB_BASE_NAME}, 状态: 镜像构建成功, 镜像名字: ${env.IMAGE_NAME}"
 }
 
 void bearychat_notify_failed() {
-  bearychatSend message: " Job [${env.JOB_NAME} 执行中断,请点击这里检查原因！](${env.BUILD_URL})", color: "#ff0000", attachmentText: "状态: 镜像构建失败"
+  bearychatSend message: "构建失败: [${env.JOB_NAME} 执行中断, 请点击这里检查原因！](${env.BUILD_URL})", color: "#ff0000", attachmentText: "状态: 镜像构建失败"
 }
 
 // deploy namespace notify
