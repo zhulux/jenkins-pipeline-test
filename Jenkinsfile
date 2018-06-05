@@ -202,7 +202,7 @@ pipeline {
         multi_deploy_prod(DEP_DB_MIGRATE_DEPLOY_PROD)
         multi_deploy_prod(PRODUCT_DEPLOY_CONTAINER)
         bearychat_notify_deploy_successful()
-        bearychat_notify_deploy_successful(production)
+        bearychat_notify_deploy_successful('production')
       }
     }
   }
