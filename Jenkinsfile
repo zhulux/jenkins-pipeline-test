@@ -144,14 +144,14 @@ pipeline {
         timeout(time:2, unit:'MINUTES'){
           input 'Deploy to Staging?'
         }
-        bearychat_notify_failed()
         milestone(2)
         echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID}"
 
         multi_deploy(DEP_DB_MIGRATE_DEPLOY)
         sh "sleep 3"
         multi_deploy(STAGING_DEPLOY_CONTAINER)
-        bearychat_notify()
+        bearychat_notify_failed()
+        bearychat_notify_successful()
       
       }
     }
