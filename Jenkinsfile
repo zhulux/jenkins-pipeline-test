@@ -27,6 +27,7 @@ pipeline {
     GEM_SERVER = "https://zhulux.com/private-test"
     PUSH_KEY = "${ZHULUX_GEM_KEY}"
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
+    KUBERNETES_UI = "http://k8s.zhulu.ltd/#!/deployment?namespace"
     
   }
   stages {
@@ -84,6 +85,7 @@ pipeline {
       }
       steps {
         echo 'TODO: add tests'
+        bearychat_notify_start()
       }
     }
     // build image and upload image to docker registry
@@ -152,7 +154,10 @@ pipeline {
         echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID}"
 
         multi_deploy(DEP_DB_MIGRATE_DEPLOY)
+        sh "sleep 3"
         multi_deploy(STAGING_DEPLOY_CONTAINER)
+        //bearychat_notify_successful()
+        bearychat_notify_deploy_successful()
       
       }
     }
@@ -196,6 +201,8 @@ pipeline {
         //sh "kubectl set image deployment ${DEPLOYMENT_NAME_PROD} ${CONTAINER_NAME}=${IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
         multi_deploy_prod(DEP_DB_MIGRATE_DEPLOY_PROD)
         multi_deploy_prod(PRODUCT_DEPLOY_CONTAINER)
+        bearychat_notify_deploy_successful()
+        bearychat_notify_deploy_successful(production)
       }
     }
   }
@@ -224,6 +231,26 @@ void notifyFailed() {
       <p>Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>"</p>""",
     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
     )
+}
+
+// BearychatSend notify
+
+void bearychat_notify_start() {
+  bearychatSend "Started [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
+}
+
+void bearychat_notify_successful() {
+  bearychatSend title: "Successful ${env.JOB_NAME} ${env.BUILD_NUMBER}", url: "${env.BUILD_URL}"
+  bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00ff00", attachmentText: "Project: ${env.JOB_BASE_NAME},状态: 镜像构建成功, 镜像名字: ${env.IMAGE_NAME}"
+}
+
+void bearychat_notify_failed() {
+  bearychatSend message: " Job ${env.JOB_NAME} 执行中断", color: "#ff0000", attachmentText: "镜像构建失败"
+}
+
+
+void bearychat_notify_deploy_successful(namespace='staging') {
+  bearychatSend title: "Successful Deploy to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
 }
 
 //void multi_deploy(song_list) {
