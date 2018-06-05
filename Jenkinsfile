@@ -242,7 +242,7 @@ void notifyFailed() {
 // BearychatSend notify
 
 void bearychat_notify_start() {
-  bearychatSend color: "#00FFFF", "Started Pipeline [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
+  bearychatSend color: "#00FFFF", attachmentText: "Started Pipeline [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
 }
 
 // build image success or failed notify
