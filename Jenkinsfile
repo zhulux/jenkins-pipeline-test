@@ -147,7 +147,9 @@ pipeline {
         echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID}"
 
         multi_deploy(DEP_DB_MIGRATE_DEPLOY)
+        sh "sleep 3"
         multi_deploy(STAGING_DEPLOY_CONTAINER)
+        bearychat_notify()
       
       }
     }
@@ -220,6 +222,15 @@ void notifyFailed() {
     recipientProviders: [[$class: 'DevelopersRecipientProvider']]
     )
 }
+
+// BearychatSend notify
+
+void bearychat_notify() {
+  bearychatSend title: "${env.JOB_NAME} #{env.JOB_NUMBER}", url: "{env.BUILD_URL}"
+  bearychatSend message: "Job ${env.JOB_NAME} Failed", color: "#ff0000", attachmentText: "Exception: NullPointerException"
+  bearychatSend "Started [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
+}
+
 
 //void multi_deploy(song_list) {
 //  sh "echo Going to echo a list"
