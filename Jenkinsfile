@@ -79,6 +79,7 @@ pipeline {
       }
       steps {
         echo 'TODO: add tests'
+        bearychat_notify_start()
       }
     }
     // build image and upload image to docker registry
@@ -143,6 +144,7 @@ pipeline {
         timeout(time:2, unit:'MINUTES'){
           input 'Deploy to Staging?'
         }
+        bearychat_notify_failed()
         milestone(2)
         echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID}"
 
@@ -225,12 +227,21 @@ void notifyFailed() {
 
 // BearychatSend notify
 
-void bearychat_notify() {
-  bearychatSend title: "${env.JOB_NAME} #{env.JOB_NUMBER}", url: "{env.BUILD_URL}"
-  bearychatSend message: "Job ${env.JOB_NAME} Failed", color: "#ff0000", attachmentText: "Exception: NullPointerException"
+void bearychat_notify_successful() {
+  bearychatSend title: "${env.JOB_NAME} ${env.JOB_NUMBER}", url: "{env.BUILD_URL}"
+  bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#439FE0", attachmentText: "Project: ${}","状态: 镜像构建成功", attachmentText: "镜像: ${env.IMAGE_NAME}"
   bearychatSend "Started [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
 }
 
+void bearychat_notify_failed() {
+  bearychatSend title: "${env.CHANGE_AUTHOR}, ${env.CHANGE_AUTHOR_DISPLAY_NAME}, ${env.CHANGE_AUTHOR_EMAIL},${env.JOB_NAME} ${env.JOB_NUMBER}", url: "{env.BUILD_URL}"
+  bearychatSend message: " Job ${env.JOB_NAME} 执行中断", color: "#ff0000", attachmentText: "镜像构建失败"
+  bearychatSend "Started [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
+}
+
+void bearychat_notify_start() {
+  bearychatSend "Started [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
+}
 
 //void multi_deploy(song_list) {
 //  sh "echo Going to echo a list"
