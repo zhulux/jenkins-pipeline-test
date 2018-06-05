@@ -201,12 +201,12 @@ pipeline {
         //sh "kubectl set image deployment ${DEPLOYMENT_NAME_PROD} ${CONTAINER_NAME}=${IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
         multi_deploy_prod(DEP_DB_MIGRATE_DEPLOY_PROD)
         multi_deploy_prod(PRODUCT_DEPLOY_CONTAINER)
-        println "start 1"
-        bearychat_notify_start()
-        println "build successful"
-        bearychat_notify_successful()
-        println "build failed"
-        bearychat_notify_failed()
+       // println "start 1"
+       // bearychat_notify_start()
+       // println "build successful"
+       // bearychat_notify_successful()
+       // println "build failed"
+       // bearychat_notify_failed()
         println "deploy successs"
         bearychat_notify_deploy_successful('production')
       }
