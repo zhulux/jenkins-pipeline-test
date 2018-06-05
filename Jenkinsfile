@@ -150,7 +150,6 @@ pipeline {
         multi_deploy(DEP_DB_MIGRATE_DEPLOY)
         sh "sleep 3"
         multi_deploy(STAGING_DEPLOY_CONTAINER)
-        bearychat_notify_failed()
         bearychat_notify_successful()
       
       }
@@ -229,7 +228,7 @@ void notifyFailed() {
 
 void bearychat_notify_successful() {
   bearychatSend title: "${env.JOB_NAME} ${env.JOB_NUMBER}", url: "${env.BUILD_URL}"
-  bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00FF00", attachmentText: "Project: ${env.JOB_BASE_NAME}","状态: 镜像构建成功", "镜像: ${env.IMAGE_NAME}"
+  bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00FF00", attachmentText: "Project: ${env.JOB_BASE_NAME},状态: 镜像构建成功, 镜像: ${env.IMAGE_NAME}"
   bearychatSend "Started [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
 }
 
