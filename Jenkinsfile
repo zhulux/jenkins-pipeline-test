@@ -243,7 +243,7 @@ void bearychat_notify_start() {
 }
 
 void bearychat_notify_deploy_successful(namespace='staging') {
-  bearychatSend title: "Successful Deploy to ${namespace}, Click here to check!", url: "{env.KUBERNETES_UI}={namespace}"
+  bearychatSend title: "Successful Deploy to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
 }
 
 //void multi_deploy(song_list) {
