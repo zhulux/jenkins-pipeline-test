@@ -28,6 +28,8 @@ pipeline {
     PUSH_KEY = "${ZHULUX_GEM_KEY}"
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
     KUBERNETES_UI = "http://k8s.zhulu.ltd/#!/deployment?namespace"
+    STAGING_DB_URL = "postgres://staginguuss:xxss@123.456.789.000/lloo"
+    PRODUCT_DB_URL = "postgres://productuuss:xxss@123.456.789.000/lloo"
     
   }
   stages {
@@ -131,6 +133,48 @@ pipeline {
 //      }
 //
 //    }
+
+    stage('Staging DB Mirgate') {
+      agent {
+        docker {
+          label 'docker-build-cn'
+          image "${IMAGE_REPO}/${env.IMAGE_NAME}:24"
+          args "-e OPTIMUS_DB_URL=${env.STAGING_DB_URL} -e RAILS_ENV='staging'"
+        }
+      }
+      when {
+        branch 'staging'
+      }
+      options {
+        skipDefaultCheckout()
+      }
+      steps {
+        println 'rails_env=${RAILS_ENV:-development}'
+        println 'echo ==Rails environment: $rails_env'
+        println 'bundle exec rails db:migrate'
+      }
+    }
+
+    stage('Production DB Mirgate') {
+      agent {
+        docker {
+          label 'docker-build-cn'
+          image "${IMAGE_REPO}/${env.IMAGE_NAME}:${BRANCH_NAME}"
+          args "-e OPTIMUS_DB_URL=${env.PRODUCT_DB_URL} -e RAILS_ENV='production'"
+        }
+      }
+      when {
+        tag 'v*'
+      }
+      options {
+        skipDefaultCheckout()
+      }
+      steps {
+        println 'rails_env=${RAILS_ENV:-development}'
+        println 'echo ==Rails environment: $rails_env'
+        println 'bundle exec rails db:migrate'
+      }
+    }
 
     // deploy image to staging
     stage('Staging Deployment') {
