@@ -138,7 +138,7 @@ pipeline {
       agent {
         docker {
           label 'docker-build-cn'
-          image "${env.IMAGE_REPO}/${env.IMAGE_NAME}:24"
+          image '$IMAGE_REPO/$IMAGE_NAME:24'
           args "-e OPTIMUS_DB_URL=${env.STAGING_DB_URL} -e RAILS_ENV='staging'"
         }
       }
