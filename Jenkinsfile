@@ -146,7 +146,7 @@ pipeline {
         skipDefaultCheckout()
       }
 
-      setps {
+      steps {
         sh "kubectl get pod -n ${NAMESPACE}"
       }
 
