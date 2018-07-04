@@ -138,8 +138,8 @@ pipeline {
       agent {
         docker {
           label 'docker-build-cn'
-          image "$IMAGE_REPO/$IMAGE_NAME:24"
-          args "-e OPTIMUS_DB_URL=$STAGING_DB_URL -e RAILS_ENV='staging'"
+          image "${IMAGE_REPO}/${IMAGE_NAME}:24"
+          args "-e OPTIMUS_DB_URL=${STAGING_DB_URL} -e RAILS_ENV='staging'"
         }
       }
       when {
@@ -152,6 +152,7 @@ pipeline {
         println 'rails_env=${RAILS_ENV:-development}'
         println 'echo ==Rails environment: $rails_env'
         println 'bundle exec rails db:migrate'
+        println '${STAGING_DB_URL}'
       }
     }
 
