@@ -150,6 +150,7 @@ pipeline {
       }
       steps {
         println 'rails_env=${RAILS_ENV:-development}'
+        println 'echo $RAILS_ENV'
         println 'echo ==Rails environment: $rails_env'
         println 'bundle exec rails db:migrate'
         println '${STAGING_DB_URL}'
