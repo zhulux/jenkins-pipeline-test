@@ -135,7 +135,7 @@ pipeline {
 //
 //    }
 
-    stage() {
+    stage('db migrate use kubectl run') {
       agent {
         label 'docker-build-bj3a'
       }
