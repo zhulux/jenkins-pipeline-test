@@ -30,6 +30,7 @@ pipeline {
     KUBERNETES_UI = "http://k8s.zhulu.ltd/#!/deployment?namespace"
     STAGING_DB_URL = "postgres://staginguuss:xxss@123.456.789.000/lloo"
     PRODUCT_DB_URL = "postgres://productuuss:xxss@123.456.789.000/lloo"
+    NAMESPACE = "devops"
     
   }
   stages {
@@ -134,12 +135,29 @@ pipeline {
 //
 //    }
 
+    stage() {
+      agent {
+        label 'docker-build-bj3a'
+      }
+      when {
+        branch 'staging'
+      }
+      options {
+        skipDefaultCheckout()
+      }
+
+      setps {
+        sh "kubectl get pod -n ${NAMESPACE}"
+      }
+
+    }
+
     stage('Staging DB Mirgate') {
       agent {
         docker {
           label 'docker-build-cn'
           image '$IMAGE_REPO/$IMAGE_NAME:staging-90'
-          args '-e OPTIMUS_DB_URL=$STAGING_DB_URL -e RAILS_ENV=staging'
+          args '-e OPTIMUS_DB_URL="$STAGING_DB_URL" -e RAILS_ENV=staging'
         }
       }
       when {
