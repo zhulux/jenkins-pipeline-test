@@ -359,11 +359,12 @@ void multi_deploy_prod(song_list, namespace='production') {
 
 
 void db_migrate(namespace='staging') {
-  if (namespace='staging') {
+  if (namespace=='staging') {
+    println "current namespace is ${namespace}"
+  } else if (namespace=='product'){
     println "current namespace is ${namespace}"
   } else {
-    println "current namespace is ${namespace}"
-
+    println "Nothing"
   }
 
 }
