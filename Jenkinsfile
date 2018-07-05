@@ -149,6 +149,9 @@ pipeline {
       steps {
         sh "kubectl get pod -n ${NAMESPACE}"
         sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' -- bash start.sh"
+        db_migrate('devops')
+        println "hahaha, belowbelow"
+        db_migrate('prod')
       }
 
     }
@@ -344,4 +347,23 @@ void multi_deploy_prod(song_list, namespace='production') {
   song_list.each { key, value ->
     println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
   }
+}
+
+// exec db migrate
+//void db_migrate(namespace='staging') {
+//  sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' -- bash start.sh"
+//
+//  sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' --namespace ${namespace} --kubeconfig=/home/devops/.kube/jenkins-k8s-config --context=${env.KUBERNETES_PRODUCT_CONTEXT} -- bash start.sh"
+//
+//}
+
+
+void db_migrate(namespace='staging') {
+  if (namespace='staging') {
+    println "current namespace is ${namespace}"
+  } else {
+    println "current namespace is ${namespace}"
+
+  }
+
 }
