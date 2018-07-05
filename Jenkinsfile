@@ -379,7 +379,7 @@ void multi_deploy_new(song_list, namespace='staging') {
       println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
     } 
   } else if (namespace=='production') {
-    song_list_each { key, value -> 
+    song_list.each { key, value -> 
       println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
     }
   } else {
