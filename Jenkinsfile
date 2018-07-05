@@ -152,6 +152,10 @@ pipeline {
         db_migrate('staging')
         println "hahaha, belowbelow"
         db_migrate('product')
+        println "below is deploy test!!!!"
+        multi_deploy_new(STAGING_DEPLOY_CONTAINER)
+        println "below is product deoloytest !!! GO"
+        multi_deploy_new(PRODUCT_DEPLOY_CONTAINER)
       }
 
     }
@@ -358,6 +362,7 @@ void multi_deploy_prod(song_list, namespace='production') {
 //}
 
 
+// db migrate performance
 void db_migrate(namespace='staging') {
   if (namespace=='staging') {
     println "current namespace is ${namespace}"
@@ -366,5 +371,22 @@ void db_migrate(namespace='staging') {
   } else {
     println "Nothing"
   }
-
 }
+
+void multi_deploy_new(song_list, namespace='staging') {
+  if (namespace=='staging') {
+    song_list.each { key, value ->
+      println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+    } 
+  } else if (namespace=='production') {
+    song_list_each { key, value -> 
+      println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+    }
+  } else {
+    println "Nothing at all"
+  }
+}
+
+
+
+
