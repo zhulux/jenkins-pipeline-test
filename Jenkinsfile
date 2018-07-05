@@ -148,7 +148,7 @@ pipeline {
 
       steps {
         sh "kubectl get pod -n ${NAMESPACE}"
-        sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --rm=true --restart='Never' --env='namespace=${NAMESPACE}' -- echo $namespace; sleep 30; echo 'test migrate';"
+        sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' -- echo $namespace; sleep 30; echo 'test migrate';"
       }
 
     }
