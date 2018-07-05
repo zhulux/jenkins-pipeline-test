@@ -153,7 +153,7 @@ pipeline {
 
       steps {
         sh "kubectl get pod -n ${NAMESPACE}"
-        sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' --env='RAILS_ENV=$STAGING_ENV' --env='OPTIMUS_DB_URL=${STAGING_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' -- echo $RAILS_ENV $OPTIMUS_DB_URL $SENTRY_DSN"
+        sh 'kubectl run optimus-migrate --image="${IMAGE_REPO}"/"${IMAGE_NAME}":staging-90 --attach=true --rm=true --restart="Never" --env="namespace=${NAMESPACE}" --env="RAILS_ENV=$STAGING_ENV" --env="OPTIMUS_DB_URL=${STAGING_DB}" --env="SENTRY_DSN=${SENTRY_DSN}" -- echo $RAILS_ENV $OPTIMUS_DB_URL $SENTRY_DSN'
         sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' --env='RAILS_ENV=${STAGING_ENV}' --env='OPTIMUS_DB_URL=${STAGING_DB}' -- echo $RAILS_ENV $OPTIMUS_DB_URL $SENTRY_DSN"
         db_migrate('staging')
         println "hahaha, belowbelow"
