@@ -149,9 +149,9 @@ pipeline {
       steps {
         sh "kubectl get pod -n ${NAMESPACE}"
 //        sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' -- bash start.sh"
-        db_migrate('devops')
+        db_migrate('staging')
         println "hahaha, belowbelow"
-        db_migrate('prod')
+        db_migrate('product')
       }
 
     }
