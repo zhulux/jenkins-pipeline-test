@@ -155,7 +155,7 @@ pipeline {
         println "below is deploy test!!!!"
         multi_deploy_new(STAGING_DEPLOY_CONTAINER)
         println "below is product deoloytest !!! GO"
-        multi_deploy_new(PRODUCT_DEPLOY_CONTAINER)
+        multi_deploy_new(PRODUCT_DEPLOY_CONTAINER, 'production')
       }
 
     }
