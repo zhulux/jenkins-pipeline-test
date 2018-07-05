@@ -153,15 +153,15 @@ pipeline {
 
       steps {
         sh "kubectl get pod -n ${NAMESPACE}"
-        sh 'kubectl run optimus-migrate --image="${IMAGE_REPO}"/"${IMAGE_NAME}":staging-90 --attach=true --rm=true --restart="Never" --env="namespace=${NAMESPACE}" --env="RAILS_ENV=${STAGING_ENV}" --env="OPTIMUS_DB_URL=${STAGING_DB}" --env="SENTRY_DSN=${SENTRY_DSN}" -- env'
-        sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' --env='RAILS_ENV=${PRODUCT_ENV}' --env='OPTIMUS_DB_URL=${PRODUCT_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' -- env"
+//        sh 'kubectl run optimus-migrate --image="${IMAGE_REPO}"/"${IMAGE_NAME}":staging-90 --attach=true --rm=true --restart="Never" --env="namespace=${NAMESPACE}" --env="RAILS_ENV=${STAGING_ENV}" --env="OPTIMUS_DB_URL=${STAGING_DB}" --env="SENTRY_DSN=${SENTRY_DSN}" -- env'
+//        sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' --env='RAILS_ENV=${PRODUCT_ENV}' --env='OPTIMUS_DB_URL=${PRODUCT_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' -- env"
         db_migrate('staging')
         println "hahaha, belowbelow"
-        db_migrate('product')
-        println "below is deploy test!!!!"
-        multi_deploy_new(STAGING_DEPLOY_CONTAINER)
-        println "below is product deoloytest !!! GO"
-        multi_deploy_new(PRODUCT_DEPLOY_CONTAINER, 'production')
+        db_migrate('production')
+//        println "below is deploy test!!!!"
+//        multi_deploy_new(STAGING_DEPLOY_CONTAINER)
+//        println "below is product deoloytest !!! GO"
+//        multi_deploy_new(PRODUCT_DEPLOY_CONTAINER, 'production')
       }
 
     }
@@ -371,10 +371,10 @@ void multi_deploy_prod(song_list, namespace='production') {
 // db migrate performance
 void db_migrate(namespace='staging') {
   if (namespace=='staging') {
-    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${STAGING_ENV}' --env='OPTIMUS_DB_URL=${STAGING_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config -- env"
+    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${STAGING_ENV}' --env='OPTIMUS_DB_URL=${STAGING_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' -- env --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
     println "current namespace is ${namespace}"
   } else if (namespace=='production'){
-    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${PRODUCT_ENV}' --env='OPTIMUS_DB_URL=${PRODUCT_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config -- env"
+    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${PRODUCT_ENV}' --env='OPTIMUS_DB_URL=${PRODUCT_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' -- env --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
     println "current namespace is ${namespace}"
   } else {
     println "Nothing"
