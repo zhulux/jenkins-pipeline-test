@@ -411,12 +411,12 @@ void multi_deploy_new(song_list, namespace='staging') {
 //String jobName = buildEnvVarsMap?.JOB_NAME
 
 void get_env(env_name) {
-  def thr = Thread.currentThread()
-  def build = thr.executable
-  // get build parameters
-  def buildVariablesMap = build.buildVariables 
-  // get all environment variables for the build
-  def buildEnvVarsMap = build.envVars
+//  def thr = Thread.currentThread()
+//  def build = thr.executable
+//  // get build parameters
+//  def buildVariablesMap = build.buildVariables 
+//  // get all environment variables for the build
+//  def buildEnvVarsMap = build.envVars
   
   if (env_name=='STAGING_OPTIMUS_DB_URL') {
     //String env_name = buildEnvVarsMap?.STAGING_OPTIMUS_DB_URL
