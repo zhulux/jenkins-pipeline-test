@@ -141,19 +141,26 @@ pipeline {
       agent {
         label 'docker-build-bj3a'
       }
-      when {
-        branch 'staging'
-      }
+// every exec db migrate
+//      when {
+//        branch 'staging'
+//      }
       options {
         skipDefaultCheckout()
       }
 
       steps {
-        db_migrate('staging')
+        script {
+          try {
+            getBranchMigrate()
+          } catch (err) {
+            bearychat_notify_failed()
+            throw err
+          }
+
+        }
         println "hahaha, belowbelow"
-        db_migrate('production')
-        get_env('STAGING_OPTIMUS_DB_URL')
-        get_env('SENTRY_DSN')
+
 //        println "below is deploy test!!!!"
 //        multi_deploy_new(STAGING_DEPLOY_CONTAINER)
 //        println "below is product deoloytest !!! GO"
@@ -330,6 +337,20 @@ void bearychat_notify_failed() {
   bearychatSend message: "构建失败: [${env.JOB_NAME} 执行中断, 请点击这里检查原因！](${env.BUILD_URL})", color: "#ff0000", attachmentText: "状态: 镜像构建失败"
 }
 
+
+// db_migrate notify
+
+//void bearychat_notify_successful() {
+//  bearychatSend title: "构建成功: ${env.JOB_NAME} ${env.BUILD_NUMBER}", url: "${env.BUILD_URL}"
+//  bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00ff00", attachmentText: "Project: ${env.JOB_BASE_NAME}, 状态: 镜像构建成功, 镜像名字: ${env.IMAGE_NAME}"
+//}
+//
+//void bearychat_notify_failed() {
+//  bearychatSend message: "构建失败: [${env.JOB_NAME} 执行中断, 请点击这里检查原因！](${env.BUILD_URL})", color: "#ff0000", attachmentText: "状态: 镜像构建失败"
+//}
+
+
+
 // deploy namespace notify
 void bearychat_notify_deploy_successful(namespace='staging') {
   bearychatSend title: "Successful Deploy to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
@@ -391,6 +412,16 @@ void multi_deploy_new(song_list, namespace='staging') {
   }
 }
 
+
+def getBranchMigrate(String branch) {
+    if ( BRANCH_NAME == 'staging' ){
+        db_migrate('staging')
+    } else if ( BRANCH_NAME ==~ /v.*/ ) {
+        db_migrate('production')
+    } else {
+        println 'Nothing'
+    }
+}
 
 
 
