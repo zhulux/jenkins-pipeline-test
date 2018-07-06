@@ -432,8 +432,8 @@ void getBranchMigrate(String branch) {
 //
 //}
 
-    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers":
-    [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": ""}}, {"secretRef": {"name": "secrets"}}]}]}}'"
+//    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers":
+//    [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": ""}}, {"secretRef": {"name": "secrets"}}]}]}}'"
 
 
 
