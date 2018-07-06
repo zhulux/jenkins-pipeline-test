@@ -152,7 +152,7 @@ pipeline {
       steps {
         script {
           try {
-           sh 'kc run optimus-migrate --image=registry.astarup.com/astarup/optimus:staging-90 --attach=true --rm=true --restart=Never --overrides='{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["bash"],"args": ["start.sh"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}''
+           sh "kc run optimus-migrate --image=registry.astarup.com/astarup/optimus:staging-90 --attach=true --rm=true --restart=Never --overrides='{'spec': {'containers': [{'image': 'registry.astarup.com/astarup/optimus:staging-90', 'command': ['bash'],'args': ['start.sh'], 'name': 'optimus-migra', 'envFrom': [{'configMapRef': {'name': 'db-url-info'}}]}]}}'"
             getBranchMigrate(BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
