@@ -149,7 +149,6 @@ pipeline {
       }
 
       steps {
-        sh "kubectl get pod -n ${NAMESPACE}"
         db_migrate('staging')
         println "hahaha, belowbelow"
         db_migrate('production')
