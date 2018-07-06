@@ -152,7 +152,7 @@ pipeline {
       steps {
         script {
           try {
-            getBranchMigrate(params.BRANCH_NAME)
+            getBranchMigrate(BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
             throw err
