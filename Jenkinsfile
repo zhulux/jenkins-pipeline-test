@@ -152,7 +152,7 @@ pipeline {
       steps {
         script {
           try {
-           sh "kubectl run optimus-migrate --image=registry.astarup.com/astarup/optimus:staging-90 --attach=true --rm=true --restart=Never --namespace staging  --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='{'spec': {'containers': [{'image': 'registry.astarup.com/astarup/optimus:staging-90', 'command': ['bash'],'args': ['start.sh'], 'name': 'optimus-migra', 'envFrom': [{'configMapRef': {'name': 'db-url-info'}}]}]}}'"
+            kubeRunMigrate('staging')
             getBranchMigrate(BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
@@ -461,4 +461,8 @@ void getBranchMigrate(String branch) {
 //}
 
 
+def kubeRunMigrate(branch_name) {
+    def String fileContents = new File('override.txt').text
+    println "kc run optimus-migrate --image=registry.astarup.com/astarup/optimus:staging-90 --attach=true --rm=true --restart=Never --overrides=${fileContents} -ndefault -- env"
+}
 

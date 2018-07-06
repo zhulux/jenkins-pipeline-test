@@ -1,0 +1,1 @@
+'{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
