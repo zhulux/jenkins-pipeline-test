@@ -152,6 +152,7 @@ pipeline {
       steps {
         script {
           try {
+           sh 'kc run optimus-migrate --image=registry.astarup.com/astarup/optimus:staging-90 --attach=true --rm=true --restart=Never --overrides='{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["bash"],"args": ["start.sh"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}''
             getBranchMigrate(BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
@@ -422,6 +423,17 @@ void getBranchMigrate(String branch) {
         println 'Nothing'
     }
 }
+
+void kubeRunMigrate(namespace,pod_name,image,run_env){
+    def image = ${IMAGE_REPO}/${IMAGE_NAME}:BRANCH_NAME
+    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers": [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": "configmap"}}, {"secretRef": {"name": "secrets"}}]}]}}'"
+
+    sh “kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart='Never' --overrides=''”
+
+}
+
+    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers":
+    [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": ""}}, {"secretRef": {"name": "secrets"}}]}]}}'"
 
 
 
