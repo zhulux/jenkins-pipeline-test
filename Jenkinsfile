@@ -422,9 +422,9 @@ void get_env(env_name) {
     //String env_name = buildEnvVarsMap?.STAGING_OPTIMUS_DB_URL
     return env.STAGING_OPTIMUS_DB_URL
   } else if (env_name=='PRODUCT_OPTIMUS_DB_URL') {
-    return $PRODUCT_OPTIMUS_DB_URL
+    return env.PRODUCT_OPTIMUS_DB_URL
   } else if (env_name=='SENTRY_DSN') {
-    return $SENTRY_DSN
+    return env.SENTRY_DSN
   } else {
     println 'Nothing'
   }
