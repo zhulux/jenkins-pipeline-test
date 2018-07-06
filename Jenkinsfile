@@ -152,7 +152,7 @@ pipeline {
       steps {
         script {
           try {
-            getBranchMigrate()
+            getBranchMigrate(params.BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
             throw err
@@ -414,9 +414,9 @@ void multi_deploy_new(song_list, namespace='staging') {
 
 
 void getBranchMigrate(String branch) {
-    if ( BRANCH_NAME == 'staging' ){
+    if ( branch == 'staging' ){
         db_migrate('staging')
-    } else if ( BRANCH_NAME ==~ /v.*/ ) {
+    } else if ( branch ==~ /v.*/ ) {
         db_migrate('production')
     } else {
         println 'Nothing'
