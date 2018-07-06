@@ -424,13 +424,13 @@ void getBranchMigrate(String branch) {
     }
 }
 
-void kubeRunMigrate(namespace,pod_name,image,run_env){
-    def image = ${IMAGE_REPO}/${IMAGE_NAME}:BRANCH_NAME
-    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers": [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": "configmap"}}, {"secretRef": {"name": "secrets"}}]}]}}'"
-
-    sh “kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart='Never' --overrides=''”
-
-}
+//void kubeRunMigrate(namespace,pod_name,image,run_env){
+//    def image = ${IMAGE_REPO}/${IMAGE_NAME}:BRANCH_NAME
+//    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers": [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": "configmap"}}, {"secretRef": {"name": "secrets"}}]}]}}'"
+//
+//    sh “kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart='Never' --overrides=''”
+//
+//}
 
     sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers":
     [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": ""}}, {"secretRef": {"name": "secrets"}}]}]}}'"
