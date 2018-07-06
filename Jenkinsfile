@@ -158,6 +158,8 @@ pipeline {
         db_migrate('staging')
         println "hahaha, belowbelow"
         db_migrate('production')
+        get_env('STAGING_OPTIMUS_DB_URL')
+        get_env('SENTRY_DSN')
 //        println "below is deploy test!!!!"
 //        multi_deploy_new(STAGING_DEPLOY_CONTAINER)
 //        println "below is product deoloytest !!! GO"
@@ -396,6 +398,38 @@ void multi_deploy_new(song_list, namespace='staging') {
   }
 }
 
+
+
+
+//def thr = Thread.currentThread()
+//def build = thr.executable
+//// get build parameters
+//def buildVariablesMap = build.buildVariables 
+//// get all environment variables for the build
+//def buildEnvVarsMap = build.envVars
+
+//String jobName = buildEnvVarsMap?.JOB_NAME
+
+void get_env(env_name) {
+  def thr = Thread.currentThread()
+  def build = thr.executable
+  // get build parameters
+  def buildVariablesMap = build.buildVariables 
+  // get all environment variables for the build
+  def buildEnvVarsMap = build.envVars
+  
+  if (env_name=='STAGING_OPTIMUS_DB_URL') {
+    //String env_name = buildEnvVarsMap?.STAGING_OPTIMUS_DB_URL
+    return buildEnvVarsMap?.STAGING_OPTIMUS_DB_URL
+  } else if (env_name=='PRODUCT_OPTIMUS_DB_URL') {
+    return buildEnvVarsMap?.PRODUCT_OPTIMUS_DB_URL
+  } else if (env_name=='SENTRY_DSN') {
+    return buildEnvVarsMap?.SENTRY_DSN
+  } else {
+    println 'Nothing'
+  }
+  
+}
 
 
 
