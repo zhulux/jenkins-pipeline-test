@@ -413,7 +413,7 @@ void multi_deploy_new(song_list, namespace='staging') {
 }
 
 
-def getBranchMigrate(String branch) {
+void getBranchMigrate(String branch) {
     if ( BRANCH_NAME == 'staging' ){
         db_migrate('staging')
     } else if ( BRANCH_NAME ==~ /v.*/ ) {
