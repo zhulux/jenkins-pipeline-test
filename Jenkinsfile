@@ -28,9 +28,6 @@ pipeline {
     PUSH_KEY = "${ZHULUX_GEM_KEY}"
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
     KUBERNETES_UI = "http://k8s.zhulu.ltd/#!/deployment?namespace"
-    STAGING_DB_URL = "postgres://staginguuss:xxss@123.456.789.000/lloo"
-    PRODUCT_DB_URL = "postgres://productuuss:xxss@123.456.789.000/lloo"
-    NAMESPACE = "devops"
     STAGING_ENV = "staging"
     STAGING_DB = "${STAGING_OPTIMUS_DB_URL}"
     PRODUCT_ENV = "production"
@@ -153,8 +150,6 @@ pipeline {
 
       steps {
         sh "kubectl get pod -n ${NAMESPACE}"
-//        sh 'kubectl run optimus-migrate --image="${IMAGE_REPO}"/"${IMAGE_NAME}":staging-90 --attach=true --rm=true --restart="Never" --env="namespace=${NAMESPACE}" --env="RAILS_ENV=${STAGING_ENV}" --env="OPTIMUS_DB_URL=${STAGING_DB}" --env="SENTRY_DSN=${SENTRY_DSN}" -- env'
-//        sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' --env='RAILS_ENV=${PRODUCT_ENV}' --env='OPTIMUS_DB_URL=${PRODUCT_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' -- env"
         db_migrate('staging')
         println "hahaha, belowbelow"
         db_migrate('production')
@@ -373,8 +368,7 @@ void multi_deploy_prod(song_list, namespace='production') {
 // db migrate performance
 void db_migrate(namespace='staging') {
   if (namespace=='staging') {
-//    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${STAGING_ENV}' --env='OPTIMUS_DB_URL=${STAGING_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config -- env "
-    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config -- env "
+    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${STAGING_ENV}' --env='OPTIMUS_DB_URL=${STAGING_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config -- env "
     println "current namespace is ${namespace}"
   } else if (namespace=='production'){
     sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${PRODUCT_ENV}' --env='OPTIMUS_DB_URL=${PRODUCT_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config -- env "
@@ -410,26 +404,20 @@ void multi_deploy_new(song_list, namespace='staging') {
 
 //String jobName = buildEnvVarsMap?.JOB_NAME
 
-void get_env(env_name) {
-//  def thr = Thread.currentThread()
-//  def build = thr.executable
-//  // get build parameters
-//  def buildVariablesMap = build.buildVariables 
-//  // get all environment variables for the build
-//  def buildEnvVarsMap = build.envVars
-  
-  if (env_name=='STAGING_OPTIMUS_DB_URL') {
-    //String env_name = buildEnvVarsMap?.STAGING_OPTIMUS_DB_URL
-    println env.STAGING_OPTIMUS_DB_URL
-  } else if (env_name=='PRODUCT_OPTIMUS_DB_URL') {
-    return env.PRODUCT_OPTIMUS_DB_URL
-  } else if (env_name=='SENTRY_DSN') {
-    return env.SENTRY_DSN
-  } else {
-    println 'Nothing'
-  }
-  
-}
+
+// get env from jenkins system
+//void get_env(env_name) {
+//  if (env_name=='STAGING_OPTIMUS_DB_URL') {
+//    println env.STAGING_OPTIMUS_DB_URL
+//  } else if (env_name=='PRODUCT_OPTIMUS_DB_URL') {
+//    return env.PRODUCT_OPTIMUS_DB_URL
+//  } else if (env_name=='SENTRY_DSN') {
+//    return env.SENTRY_DSN
+//  } else {
+//    println 'Nothing'
+//  }
+//  
+//}
 
 
 
