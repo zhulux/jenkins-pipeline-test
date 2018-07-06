@@ -464,6 +464,6 @@ void getBranchMigrate(String branch) {
 def kubeRunMigrate(branch_name) {
 //    def String fileContents = new File('./override.txt').text
     fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
-    sh "kc run optimus-migrate --image=registry.astarup.com/astarup/optimus:staging-90 --attach=true --rm=true --restart=Never --namespace staging --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}' -- env"
+    sh "kubectl run optimus-migrate --image=registry.astarup.com/astarup/optimus:staging-90 --attach=true --rm=true --restart=Never --namespace staging --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}' -- env"
 }
 
