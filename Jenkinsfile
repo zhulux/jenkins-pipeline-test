@@ -51,7 +51,7 @@ pipeline {
             } else if(env.BRANCH_NAME ==~ /od.*/ ) {
               echo "CUrrent branch is ${env.BRANCH_NAME}"
             }
-            commit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+            commit_id = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
 
           } catch (exc) {
             echo "some error"
@@ -152,7 +152,7 @@ pipeline {
       steps {
         script {
           try {
-            kubeRunMigrate('staging', 'staging', 'db-hahaha', 'bundle", "exec", "rails", "db:migrate')
+            kubeRunMigrate( 'staging', 'db-hahaha', 'bundle", "exec", "rails", "db:migrate')
             //getBranchMigrate(BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
@@ -461,17 +461,17 @@ void getBranchMigrate(String branch) {
 //}
 
 
-def kubeRunMigrate(branch_name,namespace='default',pod_name='db-migration',command='env') {
-    if ( branch_name == 'staging' ){
-        tag = "${BRANCH_NAME}-${BUILD_ID}"
-    } else if ( branch_name == 'production' ){
+def kubeRunMigrate(namespace='default',pod_name='db-migration',command='time') {
+    if ( namespace == 'staging' ){
+        tag = "${BRANCH_NAME}-${commit_id}"
+    } else if ( namespace == 'production' ){
         tag = "${BRANCH_NAME}"
     } else {
         println "Nothing to do!"
     }
-    image = "$IMAGE_REPO/$IMAGE_NAME:$commit"
+    image = "$IMAGE_REPO/$IMAGE_NAME:$commit_id"
     fileContents = """{"spec": {"containers": [{"image": "$image", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}"""
 //    fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
-    sh "kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}' -- env"
+    sh "kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
 }
 
