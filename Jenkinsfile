@@ -58,7 +58,7 @@ pipeline {
           }
 
         }
-      }
+     }
     }
 
     // build gem package
@@ -466,7 +466,11 @@ def kubeRunMigrate(namespace='default',pod_name='db-migration',command='time') {
         commit_id = '99'
         tag = "${BRANCH_NAME}-${commit_id}"
     } else if ( namespace == 'production' ){
-        tag = "${BRANCH_NAME}"
+            if ( "${BRANCH_NAME}" ==~ 'v.*' ) {
+                tag = "${BRANCH_NAME}"
+            } else {
+                tag = 'latest'
+            }
     } else {
         println "Nothing to do!"
     }
