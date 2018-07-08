@@ -463,6 +463,7 @@ void getBranchMigrate(String branch) {
 
 def kubeRunMigrate(namespace='default',pod_name='db-migration',command='time') {
     if ( namespace == 'staging' ){
+        commit_id = '99'
         tag = "${BRANCH_NAME}-${commit_id}"
     } else if ( namespace == 'production' ){
         tag = "${BRANCH_NAME}"
