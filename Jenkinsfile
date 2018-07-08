@@ -483,7 +483,7 @@ def kubeRunMigrate(namespace='default',pod_name='db-migration',command='time') {
 }
 
 
-def kubeRollStatus(song_list, namespace, mutil_deploy='false') {
+def kubeRollStatus(song_list, namespace, multi_deploy='false') {
     if (multi_deploy == 'false') {
         song_list.each { key, value ->
             println "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
