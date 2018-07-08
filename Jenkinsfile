@@ -155,6 +155,7 @@ pipeline {
            // kubeRunMigrate( 'production', 'db-magrate', 'bundle", "exec", "rails", "db:migrate')
             //getBranchMigrate(BRANCH_NAME)
               kubeRollStatus(STAGING_DEPLOY_CONTAINER, 'staging', 'true' )
+              kubeRollStatus(DEP_DB_MIGRATE_DEPLOY, 'staging', 'false')
           } catch (err) {
             bearychat_notify_failed()
             throw err
