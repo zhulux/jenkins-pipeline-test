@@ -152,7 +152,7 @@ pipeline {
       steps {
         script {
           try {
-            kubeRunMigrate('production')
+            kubeRunMigrate('production', 'staging', 'db-hahaha', 'sleep 30')
             //getBranchMigrate(BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
@@ -472,6 +472,6 @@ def kubeRunMigrate(branch_name,namespace='default',pod_name="db-migration",comma
     image = "$IMAGE_REPO/$IMAGE_NAME:$tag"
     fileContents = """{"spec": {"containers": [{"image": "$image", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}"""
 //    fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
-    sh "kubectl run optimus-migrate --image=${image} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}' -- env"
+    sh "kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}' -- env"
 }
 
