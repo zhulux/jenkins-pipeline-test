@@ -470,7 +470,8 @@ def kubeRunMigrate(namespace='default',pod_name='db-migration',command='time') {
     } else {
         println "Nothing to do!"
     }
-    image = "$IMAGE_REPO/$IMAGE_NAME:$commit_id"
+    //image = "$IMAGE_REPO/$IMAGE_NAME:$commit_id"
+    image = "$IMAGE_REPO/$IMAGE_NAME:$tag"
     fileContents = """{"spec": {"containers": [{"image": "$image", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}"""
 //    fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
     sh "kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
