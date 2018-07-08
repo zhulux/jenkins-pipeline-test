@@ -152,8 +152,9 @@ pipeline {
       steps {
         script {
           try {
-            kubeRunMigrate( 'production', 'db-hahaha', 'bundle", "exec", "rails", "db:migrate')
+           // kubeRunMigrate( 'production', 'db-magrate', 'bundle", "exec", "rails", "db:migrate')
             //getBranchMigrate(BRANCH_NAME)
+              kubeRollStatus("$(env.STAGING_DEPLOY_CONTAINER)", 'staging', 'true' )
           } catch (err) {
             bearychat_notify_failed()
             throw err
@@ -480,4 +481,21 @@ def kubeRunMigrate(namespace='default',pod_name='db-migration',command='time') {
 //    fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
     sh "kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
 }
+
+
+def kubeRollStatus(song_list, namespace, mutil_deploy='false') {
+    if (multi_deploy == 'false') {
+        song_list.each { key, value ->
+            println "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        }
+    } else if (multi_deploy == 'true') {
+        song_list.each { key, value ->
+            println "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        }
+    }
+    
+}
+
+
+
 
