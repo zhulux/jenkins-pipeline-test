@@ -152,7 +152,6 @@ pipeline {
       steps {
         script {
           try {
-bundle exec rails db:migrate
             kubeRunMigrate('staging', 'staging', 'db-hahaha', 'bundle", "exec", "rails", "db:migrate')
             //getBranchMigrate(BRANCH_NAME)
           } catch (err) {
