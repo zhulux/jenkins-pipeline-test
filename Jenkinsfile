@@ -152,7 +152,7 @@ pipeline {
       steps {
         script {
           try {
-            kubeRunMigrate('staging', 'staging', 'db-hahaha', '"bundle", "exec", "rails", "db:migrate"')
+            kubeRunMigrate('staging', 'staging', 'db-hahaha', 'bundle", "exec", "rails", "db:migrate')
             //getBranchMigrate(BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
@@ -461,7 +461,7 @@ void getBranchMigrate(String branch) {
 //}
 
 
-def kubeRunMigrate(branch_name,namespace='default',pod_name="db-migration",command="env") {
+def kubeRunMigrate(branch_name,namespace='default',pod_name='db-migration',command='env') {
     if ( branch_name == 'staging' ){
         tag = "${BRANCH_NAME}-${BUILD_ID}"
     } else if ( branch_name == 'production' ){
