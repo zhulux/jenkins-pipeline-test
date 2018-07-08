@@ -51,7 +51,7 @@ pipeline {
             } else if(env.BRANCH_NAME ==~ /od.*/ ) {
               echo "CUrrent branch is ${env.BRANCH_NAME}"
             }
-
+            commit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
 
           } catch (exc) {
             echo "some error"
@@ -152,6 +152,7 @@ pipeline {
       steps {
         script {
           try {
+bundle exec rails db:migrate
             kubeRunMigrate('staging', 'staging', 'db-hahaha', 'bundle", "exec", "rails", "db:migrate')
             //getBranchMigrate(BRANCH_NAME)
           } catch (err) {
@@ -469,7 +470,7 @@ def kubeRunMigrate(branch_name,namespace='default',pod_name='db-migration',comma
     } else {
         println "Nothing to do!"
     }
-    image = "$IMAGE_REPO/$IMAGE_NAME:$tag"
+    image = "$IMAGE_REPO/$IMAGE_NAME:$commit"
     fileContents = """{"spec": {"containers": [{"image": "$image", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}"""
 //    fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
     sh "kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}' -- env"
