@@ -152,7 +152,7 @@ pipeline {
       steps {
         script {
           try {
-            kubeRunMigrate('staging', 'staging', 'db-hahaha', 'sleep 30')
+            kubeRunMigrate('staging', 'staging', 'db-hahaha', 'echo "hello world!"')
             //getBranchMigrate(BRANCH_NAME)
           } catch (err) {
             bearychat_notify_failed()
