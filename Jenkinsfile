@@ -156,6 +156,8 @@ pipeline {
             //getBranchMigrate(BRANCH_NAME)
               kubeRollStatus(STAGING_DEPLOY_CONTAINER, 'staging', 'true' )
               kubeRollStatus(DEP_DB_MIGRATE_DEPLOY, 'staging', 'false')
+              println "Rolling Update image"
+              kubeRollUpdate(STAGING_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-$commit_id", 'staging')
           } catch (err) {
             bearychat_notify_failed()
             throw err
@@ -484,6 +486,7 @@ def kubeRunMigrate(namespace='default',pod_name='db-migration',command='time') {
 }
 
 
+// check rollupdate status
 def kubeRollStatus(song_list, namespace, multi_deploy='false') {
     if (multi_deploy == 'false') {
         song_list.each { key, value ->
@@ -498,5 +501,10 @@ def kubeRollStatus(song_list, namespace, multi_deploy='false') {
 }
 
 
+// update image
+def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", namespace) {
+    song_list.each { key, value ->
+        println "kubectl set image deployment ${key} ${value}=${image_name}:${image_tag} --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+    }
 
-
+}
