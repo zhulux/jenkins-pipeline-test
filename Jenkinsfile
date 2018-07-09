@@ -161,7 +161,7 @@ pipeline {
 //              println "rolling single deploy"
 //              kubeRollUpdate(DEP_DB_MIGRATE_DEPLOY, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME", 'production')
 //              def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time') {
-              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", command='bundle", "exec", "rails, "db:migrate')
+              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", image_tag, 'bundle", "exec", "rails, "db:migrate')
           } catch (err) {
             bearychat_notify_failed()
             throw err
