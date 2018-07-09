@@ -162,6 +162,7 @@ pipeline {
 //              kubeRollUpdate(DEP_DB_MIGRATE_DEPLOY, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME", 'production')
 //              def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time') {
 //              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bundle", "exec", "rails", "db:migrate')
+              println "$env.STAGE_NAME"
               kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bash", "start.sh', 'db-url-info')
           } catch (err) {
             bearychat_notify_failed()
@@ -523,13 +524,39 @@ def dockerImageBuild(image_name="$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_i
     docker.withRegistry("${env.DOCKER_REGISTRY_URL}", "${env.DOCKER_REGISTRY_CREDENTIALSID}") {
       app.push("image_tag")
     }
-    
-  
+}
+
+
+ 
+
+// BearychatSend notify
+
+void bearychat_notify_start() {
+  bearychatSend color: "#00FFFF", attachmentText: "Started Pipeline [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
+}
+
+// build image success or failed notify
+void bearychat_notify_successful() {
+  bearychatSend title: "构建成功: ${env.JOB_NAME} ${env.BUILD_NUMBER}", url: "${env.BUILD_URL}"
+  bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00ff00", attachmentText: "Project: ${env.JOB_BASE_NAME}, 状态: 镜像构建成功, 镜像名字: ${env.IMAGE_NAME}"
+}
+
+void bearychat_notify_failed() {
+  bearychatSend message: "构建失败: [${env.JOB_NAME} 执行中断, 请点击这里检查原因！](${env.BUILD_URL})", color: "#ff0000", attachmentText: "状态: 镜像构建失败"
+}
+
+// deploy namespace notify (default namespace: staging)
+void bearychat_notify_deploy_successful(namespace='staging') {
+  bearychatSend title: "Successful Deploy ${env.IMAGE_NAME} to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
 }
 
 
 
+//def bearychat_notify(channel, messages, ) {
+
+//}
 
 
+// https://issues.jenkins-ci.org/browse/JENKINS-44456
 
 
