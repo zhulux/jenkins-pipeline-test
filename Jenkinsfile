@@ -158,6 +158,8 @@ pipeline {
               kubeRollStatus(DEP_DB_MIGRATE_DEPLOY, 'staging', 'false')
               println "Rolling Update image"
               kubeRollUpdate(STAGING_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-$commit_id", 'staging')
+              println "rolling single deploy"
+              kubeRollUpdate(DEP_DB_MIGRATE_DEPLOY, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME", 'production')
           } catch (err) {
             bearychat_notify_failed()
             throw err
