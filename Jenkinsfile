@@ -162,7 +162,7 @@ pipeline {
 //              kubeRollUpdate(DEP_DB_MIGRATE_DEPLOY, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME", 'production')
 //              def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time') {
 //              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bundle", "exec", "rails", "db:migrate')
-              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bash", "start.sh')
+              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bash", "start.sh', 'db-url-info')
           } catch (err) {
             bearychat_notify_failed()
             throw err
@@ -470,7 +470,7 @@ void getBranchMigrate(String branch) {
 //}
 
 
-def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time') {
+def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time', cm_name='db-url-info') {
 //    if ( namespace == 'staging' ){
 //        commit_id = '99'
 //        tag = "${BRANCH_NAME}-${commit_id}"
@@ -485,7 +485,7 @@ def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMA
 //    }
     //image = "$IMAGE_REPO/$IMAGE_NAME:$commit_id"
 //    image = "$IMAGE_REPO/$IMAGE_NAME:$tag"
-    fileContents = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}"""
+    fileContents = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "$cm_name"}}]}]}}"""
 //    fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
     sh "kubectl run ${pod_name} --image=${image_name}:${image_tag} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
 }
