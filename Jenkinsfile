@@ -154,12 +154,14 @@ pipeline {
           try {
            // kubeRunMigrate( 'production', 'db-magrate', 'bundle", "exec", "rails", "db:migrate')
             //getBranchMigrate(BRANCH_NAME)
-              kubeRollStatus(STAGING_DEPLOY_CONTAINER, 'staging', 'true' )
-              kubeRollStatus(DEP_DB_MIGRATE_DEPLOY, 'staging', 'false')
-              println "Rolling Update image"
-              kubeRollUpdate(STAGING_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-$commit_id", 'staging')
-              println "rolling single deploy"
-              kubeRollUpdate(DEP_DB_MIGRATE_DEPLOY, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME", 'production')
+//              kubeRollStatus(STAGING_DEPLOY_CONTAINER, 'staging', 'true' )
+//              kubeRollStatus(DEP_DB_MIGRATE_DEPLOY, 'staging', 'false')
+//              println "Rolling Update image"
+//              kubeRollUpdate(STAGING_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-$commit_id", 'staging')
+//              println "rolling single deploy"
+//              kubeRollUpdate(DEP_DB_MIGRATE_DEPLOY, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME", 'production')
+//              def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time') {
+              kubeRunMigrate('staging', 'db-db-haha', command='bundle", "exec", "rails, "db:migrate')
           } catch (err) {
             bearychat_notify_failed()
             throw err
@@ -467,24 +469,24 @@ void getBranchMigrate(String branch) {
 //}
 
 
-def kubeRunMigrate(namespace='default',pod_name='db-migration',command='time') {
-    if ( namespace == 'staging' ){
-        commit_id = '99'
-        tag = "${BRANCH_NAME}-${commit_id}"
-    } else if ( namespace == 'production' ){
-            if ( "${BRANCH_NAME}" ==~ 'v.*' ) {
-                tag = "${BRANCH_NAME}"
-            } else {
-                tag = 'latest'
-            }
-    } else {
-        println "Nothing to do!"
-    }
+def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time') {
+//    if ( namespace == 'staging' ){
+//        commit_id = '99'
+//        tag = "${BRANCH_NAME}-${commit_id}"
+//    } else if ( namespace == 'production' ){
+//            if ( "${BRANCH_NAME}" ==~ 'v.*' ) {
+//                tag = "${BRANCH_NAME}"
+//            } else {
+//                tag = 'latest'
+//            }
+//    } else {
+//        println "Nothing to do!"
+//    }
     //image = "$IMAGE_REPO/$IMAGE_NAME:$commit_id"
-    image = "$IMAGE_REPO/$IMAGE_NAME:$tag"
-    fileContents = """{"spec": {"containers": [{"image": "$image", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}"""
+//    image = "$IMAGE_REPO/$IMAGE_NAME:$tag"
+    fileContents = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}"""
 //    fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
-    sh "kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
+    sh "kubectl run ${pod_name} --image=${image_name}:${image_tag} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
 }
 
 
@@ -510,3 +512,23 @@ def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$
     }
 
 }
+
+/*
+build docker image
+*/
+
+def dockerImageBuild(image_name="$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", dockerfile_path=".", dockerfile_name="Dockerfile", http_proxy='') {
+    app = docker.build("${image_name}", "-f ${dockerfile_path}/${dockerfile_name} --build-arg http_proxy=${http_proxy} .")
+    docker.withRegistry("${env.DOCKER_REGISTRY_URL}", "${env.DOCKER_REGISTRY_CREDENTIALSID}") {
+      app.push("image_tag")
+    }
+    
+  
+}
+
+
+
+
+
+
+
