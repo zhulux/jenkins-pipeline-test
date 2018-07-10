@@ -339,11 +339,11 @@ def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMA
 def kubeRollStatus(song_list, namespace, multi_deploy='false') {
     if (multi_deploy == 'false') {
         song_list.each { key, value ->
-            println "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
         }
     } else if (multi_deploy == 'true') {
         song_list.each { key, value ->
-            println "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
         }
     }
     
@@ -353,7 +353,7 @@ def kubeRollStatus(song_list, namespace, multi_deploy='false') {
 // deploy update image
 def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", namespace) {
     song_list.each { key, value ->
-        println "kubectl set image deployment ${key} ${value}=${image_name}:${image_tag} --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        sh "kubectl set image deployment ${key} ${value}=${image_name}:${image_tag} --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
     }
 
 }
