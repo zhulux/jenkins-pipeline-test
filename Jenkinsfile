@@ -14,7 +14,8 @@ def PRODUCT_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-fa
 def TEST_DEPLOY_CONTAINER = ["helm-repo": "helm-repo"]
 
 // build image host
-def BUILD_IMAGE_HOST = 'docker-build-cn'
+// def BUILD_IMAGE_HOST = 'docker-build-cn'
+def BUILD_IMAGE_HOST = 'docker-build-bj3a'
 
 pipeline {
   agent none
@@ -59,21 +60,21 @@ pipeline {
     }
 
     // build gem package
-    stage('od gem build & push') {
-      agent { 
-        docker { 
-          image 'ruby:2.4.2'
-          args '-u root'
-        } 
-      }
-      when {
-        tag "od*"
-      }
-      steps {
-        sh "./dao-od-gem.sh"
-      }
-
-    }
+//    stage('od gem build & push') {
+//      agent { 
+//        docker { 
+//          image 'ruby:2.4.2'
+//          args '-u root'
+//        } 
+//      }
+//      when {
+//        tag "od*"
+//      }
+//      steps {
+//        sh "./dao-od-gem.sh"
+//      }
+//
+//    }
 
 
     // Note: exec sh must have agent or node
@@ -136,7 +137,7 @@ pipeline {
 
     stage('Publish Image to Registry') {
       agent {
-        label 'docker-build-cn'
+        label "${BUILD_IMAGE_HOST}"
       }
       options {
         skipDefaultCheckout()
