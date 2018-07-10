@@ -137,9 +137,9 @@ pipeline {
         script {
           try {
             if (BRANCH_NAME == 'staging') {
-              kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
+              kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"time","curl","www.baidu.com"')
             } else if (BRANCH_NAME ==~ /v.*/){
-              kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
+              kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"bundle", "exec", "rails", "db:migrate"')
             }
           } catch (err) {
             bearychat_notify_failed()
@@ -285,7 +285,7 @@ void bearychatNotifyDeployFailed(namespace='staging') {
 // db migrate performance
 
 def kubeRunMigrate(namespace='default', cluster_context, pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time', cm_name='db-url-info') {
-    jsonContent = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "$cm_name"}}]}]}}"""
+    jsonContent = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": [$command], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "$cm_name"}}]}]}}"""
     sh "kubectl run ${pod_name} --image=${image_name}:${image_tag} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${jsonContent}'"
 }
 
