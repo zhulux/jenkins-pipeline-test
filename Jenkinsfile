@@ -110,7 +110,7 @@ pipeline {
         script {
           try {
             retry(3) {
-              dockerImageBuild("$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"),http_proxy="$BUILD_HTTP_PROXY")
+              dockerImageBuild("$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"))
               notifySuccessful()
             }
           } catch (exc) {
@@ -316,7 +316,7 @@ def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$
 /*
 build docker image
 */
-def dockerImageBuild(image_name="$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", dockerfile_path=".", dockerfile_name="Dockerfile", http_proxy='') {
+def dockerImageBuild(image_name="$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", dockerfile_path=".", dockerfile_name="Dockerfile", http_proxy="$BUILD_HTTP_PROXY") {
     app = docker.build("$IMAGE_REPO/${image_name}", "-f ${dockerfile_path}/${dockerfile_name} --build-arg http_proxy=${http_proxy} .")
     docker.withRegistry("${env.DOCKER_REGISTRY_URL}", "${env.DOCKER_REGISTRY_CREDENTIALSID}") {
       app.push("$image_tag")
