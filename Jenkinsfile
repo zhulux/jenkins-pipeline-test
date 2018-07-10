@@ -10,6 +10,9 @@ def DEP_DB_MIGRATE_DEPLOY_PROD = ["optimus-optimus":"optimus-optimus"]
 def STAGING_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
 def PRODUCT_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
 
+// test pipeline deployment
+def TEST_DEPLOY_CONTAINER = ["helm-repo": "helm-repo"]
+
 // build image host
 def BUILD_IMAGE_HOST = 'docker-build-cn'
 
@@ -28,12 +31,6 @@ pipeline {
     PUSH_KEY = "${ZHULUX_GEM_KEY}"
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
     KUBERNETES_UI = "http://k8s.zhulu.ltd/#!/deployment?namespace"
-    STAGING_ENV = "staging"
-    STAGING_DB = "${STAGING_OPTIMUS_DB_URL}"
-    PRODUCT_ENV = "production"
-    PRODUCT_DB = "${PRODUCT_OPTIMUS_DB_URL}"
-    SENTRY_DSN = "${SENTRY_DSN}"
-    
   }
   stages {
     // clone remote repo step
@@ -137,14 +134,42 @@ pipeline {
 //
 //    }
 
+    stage('Publish Image to Registry') {
+      agent {
+        label 'docker-build-cn'
+      }
+      options {
+        skipDefaultCheckout()
+      }
+      when {
+        anyOf { branch 'staging'; tag 'v*' }
+      }
+      steps {
+        script {
+          try {
+            retry(3) {
+//              if ( env.BRANCH_NAME == 'staging') {
+//                image_tag = "$BRANCH_NAME-$commit_id"
+//              } else if( env.BRANCH_NAME ==~ /v.*/ ) {
+//                image_tag = "$BRANCH_NAME"
+//              }
+              dockerImageBuild("$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"))
+              notifySuccessful()
+            }
+          } catch (exc) {
+            currentBuild.result = "FAILED"
+            notifyFailed()
+            throw exc
+          }
+        }
+      }
+
+    }
+
     stage('db migrate use kubectl run') {
       agent {
         label 'docker-build-bj3a'
       }
-// every exec db migrate
-//      when {
-//        branch 'staging'
-//      }
       options {
         skipDefaultCheckout()
       }
@@ -152,78 +177,20 @@ pipeline {
       steps {
         script {
           try {
-           // kubeRunMigrate( 'production', 'db-magrate', 'bundle", "exec", "rails", "db:migrate')
-            //getBranchMigrate(BRANCH_NAME)
-//              kubeRollStatus(STAGING_DEPLOY_CONTAINER, 'staging', 'true' )
-//              kubeRollStatus(DEP_DB_MIGRATE_DEPLOY, 'staging', 'false')
-//              println "Rolling Update image"
-//              kubeRollUpdate(STAGING_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-$commit_id", 'staging')
-//              println "rolling single deploy"
-//              kubeRollUpdate(DEP_DB_MIGRATE_DEPLOY, "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME", 'production')
-//              def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time') {
-//              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bundle", "exec", "rails", "db:migrate')
-              println "$env.STAGE_NAME"
-              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bash", "start.sh', 'db-url-info')
+              //True  println "$env.STAGE_NAME"
+              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
+//              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bash", "start.sh', 'db-url-info')
           } catch (err) {
             bearychat_notify_failed()
             throw err
           }
 
         }
-        println "hahaha, belowbelow"
 
-//        println "below is deploy test!!!!"
-//        multi_deploy_new(STAGING_DEPLOY_CONTAINER)
-//        println "below is product deoloytest !!! GO"
-//        multi_deploy_new(PRODUCT_DEPLOY_CONTAINER, 'production')
       }
 
     }
 
-    stage('Staging DB Mirgate') {
-      agent {
-        docker {
-          label 'docker-build-cn'
-          image '$IMAGE_REPO/$IMAGE_NAME:staging-90'
-          args '-e OPTIMUS_DB_URL="$STAGING_DB_URL" -e RAILS_ENV=staging'
-        }
-      }
-      when {
-        branch 'staging'
-      }
-      options {
-        skipDefaultCheckout()
-      }
-      steps {
-        println 'rails_env=${RAILS_ENV:-development}'
-        println 'echo $RAILS_ENV'
-        println 'echo ==Rails environment: $rails_env'
-        println 'bundle exec rails db:migrate'
-        println '${STAGING_DB_URL}'
-        println '$STAGING_DB_URL'
-      }
-    }
-
-    stage('Production DB Mirgate') {
-      agent {
-        docker {
-          label 'docker-build-cn'
-          image "${env.IMAGE_REPO}/${env.IMAGE_NAME}:${BRANCH_NAME}"
-          args "-e OPTIMUS_DB_URL=${env.PRODUCT_DB_URL} -e RAILS_ENV='production'"
-        }
-      }
-      when {
-        tag 'v*'
-      }
-      options {
-        skipDefaultCheckout()
-      }
-      steps {
-        println 'rails_env=${RAILS_ENV:-development}'
-        println 'echo ==Rails environment: $rails_env'
-        println 'bundle exec rails db:migrate'
-      }
-    }
 
     // deploy image to staging
     stage('Staging Deployment') {
@@ -244,11 +211,13 @@ pipeline {
           input 'Deploy to Staging?'
         }
         milestone(2)
-        echo "kubectl set image deployment_name=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID}"
 
-        multi_deploy(DEP_DB_MIGRATE_DEPLOY)
-        sh "sleep 3"
-        multi_deploy(STAGING_DEPLOY_CONTAINER)
+        kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/helm-repo", currentBranchToTag("$BRANCH_NAME"), "devops")
+
+        // check roll update status
+        
+        kubeRollStatus(TEST_DEPLOY_CONTAINER, "devops", 'false')
+
         //bearychat_notify_successful()
         bearychat_notify_deploy_successful()
       
@@ -349,145 +318,18 @@ void bearychat_notify_failed() {
 }
 
 
-// db_migrate notify
-
-//void bearychat_notify_successful() {
-//  bearychatSend title: "构建成功: ${env.JOB_NAME} ${env.BUILD_NUMBER}", url: "${env.BUILD_URL}"
-//  bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00ff00", attachmentText: "Project: ${env.JOB_BASE_NAME}, 状态: 镜像构建成功, 镜像名字: ${env.IMAGE_NAME}"
-//}
-//
-//void bearychat_notify_failed() {
-//  bearychatSend message: "构建失败: [${env.JOB_NAME} 执行中断, 请点击这里检查原因！](${env.BUILD_URL})", color: "#ff0000", attachmentText: "状态: 镜像构建失败"
-//}
-
-
-
 // deploy namespace notify
 void bearychat_notify_deploy_successful(namespace='staging') {
   bearychatSend title: "Successful Deploy to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
 }
 
-//void multi_deploy(song_list) {
-//  sh "echo Going to echo a list"
-//  for (int i = 0; i < sone_list.size(); i++) {
-//    sh "echo Hello ${sone_list[i]}"
-//  }
-//}
 
-
-void multi_deploy(song_list, namespace='staging') {
-  song_list.each { key, value ->
-    println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-  }
-}
-
-void multi_deploy_prod(song_list, namespace='production') {
-  song_list.each { key, value ->
-    println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-  }
-}
-
-// exec db migrate
-//void db_migrate(namespace='staging') {
-//  sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' -- bash start.sh"
-//
-//  sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --attach=true --rm=true --restart='Never' --env='namespace=${NAMESPACE}' --namespace ${namespace} --kubeconfig=/home/devops/.kube/jenkins-k8s-config --context=${env.KUBERNETES_PRODUCT_CONTEXT} -- bash start.sh"
-//
-//}
 
 
 // db migrate performance
-void db_migrate(namespace='staging') {
-  if (namespace=='staging') {
-    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${STAGING_ENV}' --env='OPTIMUS_DB_URL=${STAGING_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config -- env "
-    println "current namespace is ${namespace}"
-  } else if (namespace=='production'){
-    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --env='RAILS_ENV=${PRODUCT_ENV}' --env='OPTIMUS_DB_URL=${PRODUCT_DB}' --env='SENTRY_DSN=${SENTRY_DSN}' --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config -- env "
-    println "current namespace is ${namespace}"
-  } else {
-    println "Nothing"
-  }
-}
-
-void multi_deploy_new(song_list, namespace='staging') {
-  if (namespace=='staging') {
-    song_list.each { key, value ->
-      println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME}-${BUILD_ID} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-    } 
-  } else if (namespace=='production') {
-    song_list.each { key, value -> 
-      println "kubectl set image deployment ${key} ${value}=${IMAGE_REPO}/${IMAGE_NAME}:${BRANCH_NAME} --namespace ${namespace}  --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-    }
-  } else {
-    println "Nothing at all"
-  }
-}
-
-
-void getBranchMigrate(String branch) {
-    if ( branch == 'staging' ){
-        db_migrate('staging')
-    } else if ( branch ==~ /v.*/ ) {
-        db_migrate('production')
-    } else {
-        println 'Nothing'
-    }
-}
-
-//void kubeRunMigrate(namespace,pod_name,image,run_env){
-//    def image = ${IMAGE_REPO}/${IMAGE_NAME}:BRANCH_NAME
-//    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers": [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": "configmap"}}, {"secretRef": {"name": "secrets"}}]}]}}'"
-//
-//    sh “kubectl run ${pod_name} --image=${image} --attach=true --rm=true --restart='Never' --overrides=''”
-//
-//}
-
-//    sh "kubectl run optimus-migrate --image=${IMAGE_REPO}/${IMAGE_NAME}:staging-90 --attach=true --rm=true --restart='Never' --overrides='{"spec": {"containers":
-//    [{"image": "image", "args": ["command"], "name": "podname", "envFrom": [{"configMapRef": {"name": ""}}, {"secretRef": {"name": "secrets"}}]}]}}'"
-
-
-
-//def thr = Thread.currentThread()
-//def build = thr.executable
-//// get build parameters
-//def buildVariablesMap = build.buildVariables 
-//// get all environment variables for the build
-//def buildEnvVarsMap = build.envVars
-
-//String jobName = buildEnvVarsMap?.JOB_NAME
-
-
-// get env from jenkins system
-//void get_env(env_name) {
-//  if (env_name=='STAGING_OPTIMUS_DB_URL') {
-//    println env.STAGING_OPTIMUS_DB_URL
-//  } else if (env_name=='PRODUCT_OPTIMUS_DB_URL') {
-//    return env.PRODUCT_OPTIMUS_DB_URL
-//  } else if (env_name=='SENTRY_DSN') {
-//    return env.SENTRY_DSN
-//  } else {
-//    println 'Nothing'
-//  }
-//}
-
 
 def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time', cm_name='db-url-info') {
-//    if ( namespace == 'staging' ){
-//        commit_id = '99'
-//        tag = "${BRANCH_NAME}-${commit_id}"
-//    } else if ( namespace == 'production' ){
-//            if ( "${BRANCH_NAME}" ==~ 'v.*' ) {
-//                tag = "${BRANCH_NAME}"
-//            } else {
-//                tag = 'latest'
-//            }
-//    } else {
-//        println "Nothing to do!"
-//    }
-    //image = "$IMAGE_REPO/$IMAGE_NAME:$commit_id"
-//    image = "$IMAGE_REPO/$IMAGE_NAME:$tag"
     fileContents = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "$cm_name"}}]}]}}"""
-//    fileContents = '{"spec": {"containers": [{"image": "registry.astarup.com/astarup/optimus:staging-90", "command": ["env"], "name": "optimus-migra", "envFrom": [{"configMapRef": {"name": "db-url-info"}}]}]}}'
     sh "kubectl run ${pod_name} --image=${image_name}:${image_tag} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
 }
 
@@ -507,7 +349,7 @@ def kubeRollStatus(song_list, namespace, multi_deploy='false') {
 }
 
 
-// update image
+// deploy update image
 def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", namespace) {
     song_list.each { key, value ->
         println "kubectl set image deployment ${key} ${value}=${image_name}:${image_tag} --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
@@ -526,37 +368,21 @@ def dockerImageBuild(image_name="$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_i
     }
 }
 
-
- 
-
-// BearychatSend notify
-
-//void bearychat_notify_start() {
-//  bearychatSend color: "#00FFFF", attachmentText: "Started Pipeline [${env.JOB_NAME} #${env.BUILD_NUMBER}](${env.BUILD_URL})"
-//}
-//
-//// build image success or failed notify
-//void bearychat_notify_successful() {
-//  bearychatSend title: "构建成功: ${env.JOB_NAME} ${env.BUILD_NUMBER}", url: "${env.BUILD_URL}"
-//  bearychatSend message: " Job ${env.JOB_NAME} 已经执行完成", color: "#00ff00", attachmentText: "Project: ${env.JOB_BASE_NAME}, 状态: 镜像构建成功, 镜像名字: ${env.IMAGE_NAME}"
-//}
-//
-//void bearychat_notify_failed() {
-//  bearychatSend message: "构建失败: [${env.JOB_NAME} 执行中断, 请点击这里检查原因！](${env.BUILD_URL})", color: "#ff0000", attachmentText: "状态: 镜像构建失败"
-//}
-//
-//// deploy namespace notify (default namespace: staging)
-//void bearychat_notify_deploy_successful(namespace='staging') {
-//  bearychatSend title: "Successful Deploy ${env.IMAGE_NAME} to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
-//}
-//
+// branch to image tag
+def currentBranchToTag(branch_name="$BRANCH_NAME") {
+  if ( branch_name == 'staging') {
+    image_tag = "$BRANCH_NAME-$commit_id"
+  } else if( branch_name ==~ /v.*/ ) {
+    image_tag = "$BRANCH_NAME"
+  }
+  return image_tag
+}
 
 
-//def bearychat_notify(channel, messages, ) {
-
-//}
-
-
-// https://issues.jenkins-ci.org/browse/JENKINS-44456
-
+/*
+参考：
+https://issues.jenkins-ci.org/browse/JENKINS-48315
+https://issues.jenkins-ci.org/browse/JENKINS-44456
+https://www.cloudbees.com/blog/top-10-best-practices-jenkins-pipeline-plugin
+*/
 
