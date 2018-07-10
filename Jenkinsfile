@@ -11,7 +11,7 @@ def STAGING_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-fa
 def PRODUCT_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
 
 // test pipeline deployment
-def TEST_DEPLOY_CONTAINER = ["helm-repo": "helm-repo"]
+def TEST_DEPLOY_CONTAINER = ["helm-repo": "helm-repo", "helm-repo1":"helm-repo2"]
 
 // build image host
 // def BUILD_IMAGE_HOST = 'docker-build-cn'
@@ -218,7 +218,7 @@ pipeline {
         script {
           try {
             kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "production", "$PROD_CONTEXT")
-            kubeRollStatus(STAGING_DEPLOY_CONTAINER, "staging", "$STAGING_CONTEXT", 'true')
+            kubeRollStatus(TEST_DEPLOY_CONTAINER, "production", "$PROD_CONTEXT")
             bearychat_notify_deploy_successful('production')
           } catch (exc) {
             currentBuild.result = "FAILED"
@@ -291,17 +291,20 @@ def kubeRunMigrate(namespace='default', cluster_context, pod_name='db-migration'
 
 
 // check rollupdate status
-def kubeRollStatus(song_list, namespace, cluster_context, multi_deploy='false') {
-    if (multi_deploy == 'false') {
-        song_list.each { key, value ->
-            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        }
-    } else if (multi_deploy == 'true') {
-        song_list.each { key, value ->
-            println "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        }
+def kubeRollStatus(song_list, namespace, cluster_context) {
+//def kubeRollStatus(song_list, namespace, cluster_context, multi_deploy='false') {
+//    if (multi_deploy == 'false') {
+//        song_list.each { key, value ->
+//            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+//        }
+//    } else if (multi_deploy == 'true') {
+//        song_list.each { key, value ->
+//            println "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+//        }
+//    }
+    song_list.each { key, value ->
+        println "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"    
     }
-    
 }
 
 
@@ -310,7 +313,6 @@ def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$
     song_list.each { key, value ->
         sh "kubectl set image deployment ${key} ${value}=${image_name}:${image_tag} --namespace ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
     }
-
 }
 
 /*
