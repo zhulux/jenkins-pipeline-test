@@ -181,7 +181,11 @@ pipeline {
         script {
           try {
               //True  println "$env.STAGE_NAME"
+            if (BRANCH_NAME == 'staging') {
               kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
+            } else if (BRANCH_NAME ==~ /v.*/){
+              kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
+            }
 //              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bash", "start.sh', 'db-url-info')
           } catch (err) {
             bearychat_notify_failed()
@@ -272,7 +276,7 @@ pipeline {
        // bearychat_notify_failed()
         println "deploy successs"
         kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "production", "$PROD_CONTEXT")
-        kubeRollStatus(TEST_DEPLOY_CONTAINER, "production", "$PROD_CONTEXT", 'false')
+        kubeRollStatus(STAGING_DEPLOY_CONTAINER, "staging", "$STAGING_CONTEXT", 'true')
         bearychat_notify_deploy_successful('production')
       }
     }
@@ -345,7 +349,7 @@ def kubeRollStatus(song_list, namespace, cluster_context, multi_deploy='false') 
         }
     } else if (multi_deploy == 'true') {
         song_list.each { key, value ->
-            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+            println "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
         }
     }
     
@@ -378,7 +382,7 @@ def currentBranchToTag(branch_name="$BRANCH_NAME") {
   } else if( branch_name ==~ /v.*/ ) {
     image_tag = "$BRANCH_NAME"
   }
-  return "$image_tag"
+  return image_tag
 }
 
 
