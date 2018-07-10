@@ -62,21 +62,22 @@ pipeline {
     }
 
     // build gem package
-//    stage('od gem build & push') {
-//      agent { 
-//        docker { 
-//          image 'ruby:2.4.2'
-//          args '-u root'
-//        } 
-//      }
-//      when {
-//        tag "od*"
-//      }
-//      steps {
+    stage('od gem build & push') {
+      agent { 
+        docker { 
+          image 'ruby:2.4.2'
+          args '-u root'
+        } 
+      }
+      when {
+        tag "od*"
+      }
+      steps {
 //        sh "./dao-od-gem.sh"
-//      }
-//
-//    }
+        sh "date"
+      }
+
+    }
 
 
     // Note: exec sh must have agent or node
@@ -180,22 +181,17 @@ pipeline {
       steps {
         script {
           try {
-              //True  println "$env.STAGE_NAME"
             if (BRANCH_NAME == 'staging') {
               kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
             } else if (BRANCH_NAME ==~ /v.*/){
               kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
             }
-//              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bash", "start.sh', 'db-url-info')
           } catch (err) {
             bearychat_notify_failed()
             throw err
           }
-
         }
-
       }
-
     }
 
 
@@ -264,23 +260,20 @@ pipeline {
       }
       steps {
         echo 'product deploy'
-        echo "${env.IMAGE_NAME}"
-        echo "kubectl set image deployment_name=${env.IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME}"
-        //sh "kubectl config use-context devadmin-context --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        //sh "kubectl set image deployment ${DEPLOYMENT_NAME_PROD} ${CONTAINER_NAME}=${IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-       // println "start 1"
-       // bearychat_notify_start()
-       // println "build successful"
-       // bearychat_notify_successful()
-       // println "build failed"
-       // bearychat_notify_failed()
-        println "deploy successs"
-        kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "production", "$PROD_CONTEXT")
-        kubeRollStatus(STAGING_DEPLOY_CONTAINER, "staging", "$STAGING_CONTEXT", 'true')
-        bearychat_notify_deploy_successful('production')
+        script {
+          try {
+            kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "production", "$PROD_CONTEXT")
+            kubeRollStatus(STAGING_DEPLOY_CONTAINER, "staging", "$STAGING_CONTEXT", 'true')
+            bearychat_notify_deploy_successful('production')
+          } catch (exc) {
+            currentBuild.result = "FAILED"
+            throw exc
+            bearychatNotifyDeployFailed
+          }
+        }
       }
     }
-  }
+  
 
 
 }
@@ -330,14 +323,17 @@ void bearychat_notify_deploy_successful(namespace='staging') {
   bearychatSend title: "Successful Deploy to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
 }
 
+void bearychatNotifyDeployFailed(namespace='staging') {
+  bearychatSend title: "Failed deploy to ${namespace}, Click here to check!", url: "${env.KUBERNETES_UI}=${namespace}"
+}
 
 
 
 // db migrate performance
 
 def kubeRunMigrate(namespace='default', cluster_context, pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time', cm_name='db-url-info') {
-    fileContents = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "$cm_name"}}]}]}}"""
-    sh "kubectl run ${pod_name} --image=${image_name}:${image_tag} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
+    jsonContent = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "$cm_name"}}]}]}}"""
+    sh "kubectl run ${pod_name} --image=${image_name}:${image_tag} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${jsonContent}'"
 }
 
 
@@ -367,7 +363,6 @@ def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$
 /*
 build docker image
 */
-
 def dockerImageBuild(image_name="$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", dockerfile_path=".", dockerfile_name="Dockerfile", http_proxy='') {
     app = docker.build("$IMAGE_REPO/${image_name}", "-f ${dockerfile_path}/${dockerfile_name} --build-arg http_proxy=${http_proxy} .")
     docker.withRegistry("${env.DOCKER_REGISTRY_URL}", "${env.DOCKER_REGISTRY_CREDENTIALSID}") {
