@@ -129,7 +129,9 @@ pipeline {
       options {
         skipDefaultCheckout()
       }
-
+      when {
+        anyOf { branch 'staging'; tag 'v*' }
+      }
       steps {
         script {
           try {
