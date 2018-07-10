@@ -303,7 +303,7 @@ def kubeRollStatus(song_list, namespace, cluster_context) {
 //        }
 //    }
     song_list.each { key, value ->
-        println "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"    
+        sh "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"    
     }
 }
 
