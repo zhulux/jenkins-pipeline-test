@@ -213,7 +213,7 @@ pipeline {
         }
         milestone(2)
 
-        kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/helm-repo", currentBranchToTag("$BRANCH_NAME"), "devops")
+        kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "devops")
 
         // check roll update status
         
