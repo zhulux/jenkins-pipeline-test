@@ -139,7 +139,8 @@ pipeline {
             if (BRANCH_NAME == 'staging') {
               kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"time","curl","www.baidu.com"')
             } else if (BRANCH_NAME ==~ /v.*/){
-              kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"bundle", "exec", "rails", "db:migrate"')
+              //kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"bundle", "exec", "rails", "db:migrate"')
+              kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/optimus", 'staging-99', '"bundle", "exec", "rails", "db:migrate"')
             }
           } catch (err) {
             bearychat_notify_failed()
