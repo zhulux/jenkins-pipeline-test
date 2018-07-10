@@ -32,6 +32,8 @@ pipeline {
     PUSH_KEY = "${ZHULUX_GEM_KEY}"
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
     KUBERNETES_UI = "http://k8s.zhulu.ltd/#!/deployment?namespace"
+    STAGING_CONTEXT = 'kubernetes-admin@kubernetes'
+    PROD_CONTEXT = 'devadmin-context'
   }
   stages {
     // clone remote repo step
@@ -179,7 +181,7 @@ pipeline {
         script {
           try {
               //True  println "$env.STAGE_NAME"
-              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
+              kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), 'env')
 //              kubeRunMigrate('staging', 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", "$BRANCH_NAME-99", 'bash", "start.sh', 'db-url-info')
           } catch (err) {
             bearychat_notify_failed()
@@ -213,11 +215,11 @@ pipeline {
         }
         milestone(2)
 
-        kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "devops")
+        kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "devops", "$STAGING_CONTEXT")
 
         // check roll update status
         
-        kubeRollStatus(TEST_DEPLOY_CONTAINER, "devops", 'false')
+        kubeRollStatus(TEST_DEPLOY_CONTAINER, "devops", "$STAGING_CONTEXT", 'false')
 
         //bearychat_notify_successful()
         bearychat_notify_deploy_successful()
@@ -262,8 +264,6 @@ pipeline {
         echo "kubectl set image deployment_name=${env.IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME}"
         //sh "kubectl config use-context devadmin-context --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
         //sh "kubectl set image deployment ${DEPLOYMENT_NAME_PROD} ${CONTAINER_NAME}=${IMAGE_REPO}/${env.IMAGE_NAME}:${env.BRANCH_NAME} --namespace production --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
-        multi_deploy_prod(DEP_DB_MIGRATE_DEPLOY_PROD)
-        multi_deploy_prod(PRODUCT_DEPLOY_CONTAINER)
        // println "start 1"
        // bearychat_notify_start()
        // println "build successful"
@@ -271,6 +271,8 @@ pipeline {
        // println "build failed"
        // bearychat_notify_failed()
         println "deploy successs"
+        kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "production", "$PROD_CONTEXT")
+        kubeRollStatus(TEST_DEPLOY_CONTAINER, "production", "$STAGING_CONTEXT", 'false')
         bearychat_notify_deploy_successful('production')
       }
     }
@@ -329,21 +331,21 @@ void bearychat_notify_deploy_successful(namespace='staging') {
 
 // db migrate performance
 
-def kubeRunMigrate(namespace='default',pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time', cm_name='db-url-info') {
+def kubeRunMigrate(namespace='default', cluster_context, pod_name='db-migration', image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id",command='time', cm_name='db-url-info') {
     fileContents = """{"spec": {"containers": [{"image": "$image_name:${image_tag}", "command": ["$command"], "name": "$pod_name", "envFrom": [{"configMapRef": {"name": "$cm_name"}}]}]}}"""
-    sh "kubectl run ${pod_name} --image=${image_name}:${image_tag} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
+    sh "kubectl run ${pod_name} --image=${image_name}:${image_tag} --attach=true --rm=true --restart=Never --namespace ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config --overrides='${fileContents}'"
 }
 
 
 // check rollupdate status
-def kubeRollStatus(song_list, namespace, multi_deploy='false') {
+def kubeRollStatus(song_list, namespace, cluster_context, multi_deploy='false') {
     if (multi_deploy == 'false') {
         song_list.each { key, value ->
-            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
         }
     } else if (multi_deploy == 'true') {
         song_list.each { key, value ->
-            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+            sh "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
         }
     }
     
@@ -351,9 +353,9 @@ def kubeRollStatus(song_list, namespace, multi_deploy='false') {
 
 
 // deploy update image
-def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", namespace) {
+def kubeRollUpdate(song_list, image_name="$IMAGE_REPO/$IMAGE_NAME", image_tag="$BRANCH_NAME-$commit_id", namespace, cluster_context) {
     song_list.each { key, value ->
-        sh "kubectl set image deployment ${key} ${value}=${image_name}:${image_tag} --namespace ${namespace} --context=kubernetes-admin@kubernetes --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
+        sh "kubectl set image deployment ${key} ${value}=${image_name}:${image_tag} --namespace ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
     }
 
 }
