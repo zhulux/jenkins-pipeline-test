@@ -11,7 +11,7 @@ def STAGING_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-fa
 def PRODUCT_DEPLOY_CONTAINER = ["optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
 
 // test pipeline deployment
-def TEST_DEPLOY_CONTAINER = ["helm-repo": "helm-repo", "helm-repo1":"helm-repo2"]
+def TEST_DEPLOY_CONTAINER = ["helm-repo": "helm-repo", "helm-repo1":"helm-repo1"]
 
 // build image host
 // def BUILD_IMAGE_HOST = 'docker-build-cn'
@@ -223,7 +223,7 @@ pipeline {
           } catch (exc) {
             currentBuild.result = "FAILED"
             throw exc
-            bearychatNotifyDeployFailed
+            bearychatNotifyDeployFailed()
           }
         }
       }
