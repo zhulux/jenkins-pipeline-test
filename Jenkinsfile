@@ -387,4 +387,3 @@ https://issues.jenkins-ci.org/browse/JENKINS-48315
 https://issues.jenkins-ci.org/browse/JENKINS-44456
 https://www.cloudbees.com/blog/top-10-best-practices-jenkins-pipeline-plugin
 */
-
