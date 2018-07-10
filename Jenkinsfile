@@ -21,12 +21,12 @@ pipeline {
 // Global environment affect pipeline scope
   environment {
     IMAGE_REPO = "registry.astarup.com/astarup"
-    IMAGE_NAME = "optimus"
+    IMAGE_NAME = "pipeline-test"
     DEPLOYMENT_NAME = ""
     DEPLOYMENT_NAME_PROD = ""
     CONTAINER_NAME = ""
     DOCKER_REGISTRY_CREDENTIALSID = "8e212ee4-a5ca-48f0-9822-2a3af5fa17da"
-    DOCKER_REGISTRY_URL = "https://registry.astarup.com/"
+    DOCKER_REGISTRY_URL = "https://registry.astarup.com/astarup"
     GEM_SERVER = "https://zhulux.com/private-test"
     PUSH_KEY = "${ZHULUX_GEM_KEY}"
     DAO_COMMIT_TAG = "${BRANCH_NAME}"
@@ -375,7 +375,7 @@ def currentBranchToTag(branch_name="$BRANCH_NAME") {
   } else if( branch_name ==~ /v.*/ ) {
     image_tag = "$BRANCH_NAME"
   }
-  return image_tag
+  return "$image_tag"
 }
 
 
