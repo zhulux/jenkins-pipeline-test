@@ -272,7 +272,7 @@ pipeline {
        // bearychat_notify_failed()
         println "deploy successs"
         kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "production", "$PROD_CONTEXT")
-        kubeRollStatus(TEST_DEPLOY_CONTAINER, "production", "$STAGING_CONTEXT", 'false')
+        kubeRollStatus(TEST_DEPLOY_CONTAINER, "production", "$PROD_CONTEXT", 'false')
         bearychat_notify_deploy_successful('production')
       }
     }
