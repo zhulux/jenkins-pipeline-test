@@ -94,49 +94,6 @@ pipeline {
         bearychat_notify_start()
       }
     }
-    // build image and upload image to docker registry
-//    stage('Publish Image to Registry') {
-//      agent {
-//        label 'docker-build-cn'
-//      }
-//      options {
-//        skipDefaultCheckout()
-//      }
-//      when {
-//        anyOf { branch 'staging'; tag 'v*' }
-//      }
-//      steps {
-//        script {
-//          if ( env.BRANCH_NAME ==~ /v.*/ ) {
-//            tag_name = BRANCH_NAME
-//            echo tag_name
-//          }
-//        }
-//        script {
-//          try {
-//            retry(3) {
-//              app = docker.build("${env.IMAGE_NAME}","--build-arg http_proxy=${env.HTTP_PROXY} .")
-//              docker.withRegistry('https://registry.astarup.com:5000/', '1466a13b-3c1d-4c7f-ae93-5a65487efd13') {
-//                if ( env.BRANCH_NAME == 'staging') {
-//                  app.push("${BRANCH_NAME}-${BUILD_ID}")
-//                }else if( env.BRANCH_NAME ==~ /v.*/ ){
-//                  app.push("${BRANCH_NAME}")
-//                }
-//              }
-//            }
-//            notifySuccessful()
-//          }
-//          catch (exc) {
-//            currentBuild.result = "FAILED"
-//            notifyFailed()
-//            throw exc
-//          }
-//        }
-//        echo 'publish image'
-//
-//      }
-//
-//    }
 
     stage('Publish Image to Registry') {
       agent {
@@ -152,11 +109,6 @@ pipeline {
         script {
           try {
             retry(3) {
-//              if ( env.BRANCH_NAME == 'staging') {
-//                image_tag = "$BRANCH_NAME-$commit_id"
-//              } else if( env.BRANCH_NAME ==~ /v.*/ ) {
-//                image_tag = "$BRANCH_NAME"
-//              }
               dockerImageBuild("$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"))
               notifySuccessful()
             }
@@ -273,9 +225,7 @@ pipeline {
         }
       }
     }
-  
-
-
+  }
 }
 
 
