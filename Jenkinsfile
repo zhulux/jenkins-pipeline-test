@@ -34,6 +34,7 @@ pipeline {
     KUBERNETES_UI = "http://k8s.zhulu.ltd/#!/deployment?namespace"
     STAGING_CONTEXT = 'kubernetes-admin@kubernetes'
     PROD_CONTEXT = 'devadmin-context'
+    BUILD_HTTP_PROXY = "http://proxy_hk.astarup.com:39628"
   }
   stages {
     // clone remote repo step
@@ -109,7 +110,7 @@ pipeline {
         script {
           try {
             retry(3) {
-              dockerImageBuild("$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"))
+              dockerImageBuild("$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"),"$BUILD_HTTP_PROXY")
               notifySuccessful()
             }
           } catch (exc) {
