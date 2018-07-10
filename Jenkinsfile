@@ -110,7 +110,7 @@ pipeline {
         script {
           try {
             retry(3) {
-              dockerImageBuild("$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"),"$BUILD_HTTP_PROXY")
+              dockerImageBuild(image_name="$IMAGE_NAME", image_tag=currentBranchToTag("$BRANCH_NAME"),http_proxy="$BUILD_HTTP_PROXY")
               notifySuccessful()
             }
           } catch (exc) {
