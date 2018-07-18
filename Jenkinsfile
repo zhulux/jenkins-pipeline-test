@@ -123,7 +123,7 @@ pipeline {
 
     }
 
-    stage('db migrate use kubectl run') {
+    stage('db migrate to staging') {
       agent {
         label 'docker-build-bj3a'
       }
@@ -131,17 +131,13 @@ pipeline {
         skipDefaultCheckout()
       }
       when {
-        anyOf { branch 'staging'; tag 'v*' }
+        branch "staging"
       }
       steps {
         script {
           try {
-            if (BRANCH_NAME == 'staging') {
-              kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"time","curl","www.baidu.com"')
-            } else if (BRANCH_NAME ==~ /v.*/){
+            kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"time","curl","www.baidu.com"')
               //kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"bundle", "exec", "rails", "db:migrate"')
-              kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/optimus", 'staging-99', '"bundle", "exec", "rails", "db:migrate"')
-            }
           } catch (err) {
             bearychat_notify_failed()
             throw err
@@ -202,6 +198,31 @@ pipeline {
         milestone(2)
       }
     }
+
+
+    stage('db migrate for product') {
+      agent {
+        label 'docker-build-bj3a'
+      }
+      options {
+        skipDefaultCheckout()
+      }
+      when {
+        tag "v*"
+      }
+      steps {
+        script {
+          try {
+              kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/optimus", 'staging-99', '"bundle", "exec", "rails", "db:migrate"')
+          } catch (err) {
+            bearychat_notify_failed()
+            throw err
+          }
+        }
+      }
+    }
+
+
     // deploy production
     stage('Production Deployment') {
       agent {
