@@ -136,7 +136,7 @@ pipeline {
       steps {
         script {
           try {
-            kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"time","curl","www.baidu.com"')
+            kubeRunMigrate('staging', "$STAGING_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"date"')
               //kubeRunMigrate('production', "$PROD_CONTEXT", 'db-db-haha', "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), '"bundle", "exec", "rails", "db:migrate"')
           } catch (err) {
             bearychat_notify_failed()
