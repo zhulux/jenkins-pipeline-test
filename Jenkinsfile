@@ -24,7 +24,7 @@ import hudson.tasks.test.AbstractTestResultAction
 
 def bearyNotificationChannel = "ci"
 def bearyWebhookUrl = "https://hook.bearychat.com/=bwAGx/incoming/43427e1b1d1e89befe44c4cce6416455"
-def bearyDefaultUser = "aliasmee"
+def DDU = "aliasmee"
 def author = "";
 def message = "";
 def failedTestsString = "some error"
@@ -46,7 +46,7 @@ def notifyBearyChat(text,channel,attachments) {
 
   def payload = JsonOutput([text: text,
       channel: channel,
-      username: "${bearyDefaultUser}",
+      username: "${BDU}",
       attachments: attachments
   ])
   sh "curl -X POST --data-urlencode \'payload=${payload}\' ${bearyURL}"
