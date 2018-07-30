@@ -17,6 +17,42 @@ def TEST_DEPLOY_CONTAINER = ["helm-repo": "helm-repo", "helm-repo1":"helm-repo1"
 // def BUILD_IMAGE_HOST = 'docker-build-cn'
 def BUILD_IMAGE_HOST = 'docker-build-bj3a'
 
+
+// add jenkins notifi and testresult
+import groovy.json.JsonOutput
+import hudson.tasks.test.AbstractTestResultAction
+
+def bearyNotificationChannel = "ci"
+def bearyWebhookUrl = "https://hook.bearychat.com/=bwAGx/incoming/43427e1b1d1e89befe44c4cce6416455"
+def bearyDefaultUser = "aliasmee"
+def author = "";
+def message = "";
+def failedTestsString = "some error"
+
+
+def notifyBearyChat(text,channel,attachments) {
+  def bearyURL = "${bearyWebhookUrl}"
+  def jenkinsIcon = 'https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png'
+
+  def payload = JsonOutput([text: text,
+      channel: channel,
+      username: "${bearyDefaultUser}",
+      attachments: attachments
+  ])
+  sh "curl -X POST --data-urlencode \'payload=${payload}\' ${bearyURL}"
+}
+
+def getGitAuthor = {
+    def commit = sh(returnStdout: true, script: 'git rev-parse HEAD')
+    author = sh(returnStdout: true, script: "git --no-pager show -s --format='%an' ${commit}").trim()
+}
+
+def getLastCommitMessage = {
+    message = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
+}
+
+
+
 pipeline {
   agent none
 // Global environment affect pipeline scope
@@ -64,11 +100,11 @@ pipeline {
 
     // build gem package
     stage('od gem build & push') {
-      agent { 
-        docker { 
+      agent {
+        docker {
           image 'ruby:2.4.2'
           args '-u root'
-        } 
+        }
       }
       when {
         tag "od*"
@@ -92,7 +128,41 @@ pipeline {
       }
       steps {
         echo 'TODO: add tests'
-        bearychat_notify_start()
+        def buildColor = "red"
+        notifyBearyChat("", bearyNotificationChannel, [
+            [
+                title: "${jobName}, build #${env.BUILD_NUMBER}",
+                url: "${env.BUILD_URL}",
+                color: "${buildColor}",
+                text: "${buildStatus}\n${author}",
+                "mrkdwn_in": ["fields"],
+                fields: [
+                    [
+                        title: "Branch",
+                        value: "${env.GIT_BRANCH}",
+                        short: true
+                    ],
+                    [
+                        title: "Test Results",
+                        value: "${testSummary}",
+                        short: true
+                    ],
+                    [
+                        title: "Last Commit",
+                        value: "${message}",
+                        short: false
+                    ]
+                ]
+
+            ],
+            [
+                title: "Failed Tests",
+                color: "${buildColor}",
+                text: "${failedTestsString}",
+                "mrkdwn_in": ["text"],
+            ]
+
+        ])
       }
     }
 
@@ -170,12 +240,12 @@ pipeline {
         kubeRollUpdate(TEST_DEPLOY_CONTAINER, "$IMAGE_REPO/$IMAGE_NAME", currentBranchToTag("$BRANCH_NAME"), "devops", "$STAGING_CONTEXT")
 
         // check roll update status
-        
+
         kubeRollStatus(TEST_DEPLOY_CONTAINER, "devops", "$STAGING_CONTEXT", 'false')
 
         //bearychat_notify_successful()
         bearychat_notify_deploy_successful()
-      
+
       }
     }
     // approve deploy product ?
@@ -325,7 +395,7 @@ def kubeRollStatus(song_list, namespace, cluster_context) {
 //        }
 //    }
     song_list.each { key, value ->
-        sh "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"    
+        sh "kubectl rollout status deployment/${key} -n ${namespace} --context=${cluster_context} --kubeconfig=/home/devops/.kube/jenkins-k8s-config"
     }
 }
 
