@@ -35,6 +35,8 @@ def buildColor = "red"
 def notifyBearyChat(text,channel,attachments) {
   def bearyURL = "${bearyWebhookUrl}"
   def jenkinsIcon = 'https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png'
+  getLastCommitMessage()
+  getGitAuthor()
 
   def payload = JsonOutput([text: text,
       channel: channel,
@@ -135,7 +137,7 @@ pipeline {
                 title: "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
                 url: "${env.BUILD_URL}",
                 color: "${buildColor}",
-                text: "${buildStatus}\n${author}",
+                text: "${currentBuild.result}\n${author}",
                 "mrkdwn_in": ["fields"],
                 fields: [
                     [
@@ -145,7 +147,7 @@ pipeline {
                     ],
                     [
                         title: "Test Results",
-                        value: "${testSummary}",
+                        value: "testSummary",
                         short: true
                     ],
                     [
@@ -159,7 +161,7 @@ pipeline {
             [
                 title: "Failed Tests",
                 color: "${buildColor}",
-                text: "${failedTestsString}",
+                text: "failed message",
                 "mrkdwn_in": ["text"],
             ]
 
