@@ -31,6 +31,14 @@ def failedTestsString = "some error"
 def buildColor = "red"
 
 
+def getGitAuthor = {
+    def commit = sh(returnStdout: true, script: 'git rev-parse HEAD')
+    author = sh(returnStdout: true, script: "git --no-pager show -s --format='%an' ${commit}").trim()
+}
+
+def getLastCommitMessage = {
+    message = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
+}
 
 def notifyBearyChat(text,channel,attachments) {
   def bearyURL = "https://hook.bearychat.com/=bwAGx/incoming/43427e1b1d1e89befe44c4cce6416455"
@@ -46,14 +54,6 @@ def notifyBearyChat(text,channel,attachments) {
   sh "curl -X POST --data-urlencode \'payload=${payload}\' ${bearyURL}"
 }
 
-def getGitAuthor = {
-    def commit = sh(returnStdout: true, script: 'git rev-parse HEAD')
-    author = sh(returnStdout: true, script: "git --no-pager show -s --format='%an' ${commit}").trim()
-}
-
-def getLastCommitMessage = {
-    message = sh(returnStdout: true, script: 'git log -1 --pretty=%B').trim()
-}
 
 
 
