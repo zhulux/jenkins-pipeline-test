@@ -43,8 +43,6 @@ def getLastCommitMessage = {
 def notifyBearyChat(text,channel,attachments) {
   def bearyURL = "https://hook.bearychat.com/=bwAGx/incoming/43427e1b1d1e89befe44c4cce6416455"
   def jenkinsIcon = 'https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png'
-  getLastCommitMessage()
-  getGitAuthor()
 
   def payload = JsonOutput([text: text,
       channel: channel,
@@ -137,7 +135,7 @@ pipeline {
                 title: "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
                 url: "${env.BUILD_URL}",
                 color: "${buildColor}",
-                text: "${currentBuild.result}\n${author}",
+                text: "${currentBuild.result}\n",
                 "mrkdwn_in": ["fields"],
                 fields: [
                     [
@@ -152,7 +150,7 @@ pipeline {
                     ],
                     [
                         title: "Last Commit",
-                        value: "${message}",
+                        value: "some success messages",
                         short: false
                     ]
                 ]
