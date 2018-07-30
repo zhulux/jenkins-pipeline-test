@@ -132,7 +132,7 @@ pipeline {
         echo 'TODO: add tests'
         notifyBearyChat("", bearyNotificationChannel, [
             [
-                title: "${jobName}, build #${env.BUILD_NUMBER}",
+                title: "${env.JOB_NAME}, build #${env.BUILD_NUMBER}",
                 url: "${env.BUILD_URL}",
                 color: "${buildColor}",
                 text: "${buildStatus}\n${author}",
