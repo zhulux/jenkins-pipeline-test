@@ -28,6 +28,8 @@ def bearyDefaultUser = "aliasmee"
 def author = "";
 def message = "";
 def failedTestsString = "some error"
+def buildColor = "red"
+
 
 
 def notifyBearyChat(text,channel,attachments) {
@@ -128,7 +130,6 @@ pipeline {
       }
       steps {
         echo 'TODO: add tests'
-        def buildColor = "red"
         notifyBearyChat("", bearyNotificationChannel, [
             [
                 title: "${jobName}, build #${env.BUILD_NUMBER}",
