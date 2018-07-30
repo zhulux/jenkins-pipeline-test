@@ -33,7 +33,7 @@ def buildColor = "red"
 
 
 def notifyBearyChat(text,channel,attachments) {
-  def bearyURL = ${bearyWebhookUrl}
+  def bearyURL = "https://hook.bearychat.com/=bwAGx/incoming/43427e1b1d1e89befe44c4cce6416455"
   def jenkinsIcon = 'https://wiki.jenkins-ci.org/download/attachments/2916393/logo.png'
   getLastCommitMessage()
   getGitAuthor()
