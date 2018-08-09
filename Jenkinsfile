@@ -82,10 +82,10 @@ def buildImage(dockerfile = null, proxy = null) {
     stage("Build image") {
         def imageName = generateImageName()
         def buildArgs = []
-        if dockerfile != null {
+        if (dockerfile != null) {
             buildArgs += ["-f", dockerfile]
         }
-        if proxy != null {
+        if (proxy != null) {
             buildArgs += ["--build-arg", "HTTP_PROXY=${proxy}"]
         }
 
