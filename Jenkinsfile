@@ -116,7 +116,7 @@ def generateImageName(projectName) {
 
 def generateImageTag() {
     def tag = null
-    if (env.BRANCH_NAME = 'master') {
+    if (env.BRANCH_NAME == 'master') {
         return "staging-$commit_id"
     } else if (env.BRANCH_NAME ==~ versionTagRegex) {
         return env.BRANCH_NAME
