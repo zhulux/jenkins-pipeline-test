@@ -17,7 +17,7 @@ dockerregistryCredentialsid = "8e212ee4-a5ca-48f0-9822-2a3af5fa17da"
 
 versionTagRegex = /^v(\d+\.){0,2}\d+$/
 
-def run() {
+def runC() {
     def forDeployment = (env.BRANCH_NAME == 'master') || (env.BRANCH_NAME ==~ versionTagRegex)
     def forPR = !forDeployment
 
