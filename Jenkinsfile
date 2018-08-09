@@ -128,7 +128,7 @@ def generateImageTag() {
 def pushToRepository(imageName, app) {
     stage('Pushing docker image to repository') {
         docker.withRegistry(
-            dockerRegistryUrl
+            dockerRegistryUrl,
             dockerregistryCredentialsid
         ) {
             app.push(generateImageTag())
