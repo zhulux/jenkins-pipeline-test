@@ -167,6 +167,6 @@ def deployToServer(imageName,
     }
 }
 
-node ('buildAgent') {
+node (buildAgent) {
   runC()
 }
