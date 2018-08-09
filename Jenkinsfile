@@ -78,6 +78,13 @@ def checkoutRepo() {
     }
 }
 
+def generateImageName(projectName) {
+    if (projectName == null) {
+        raise "Must specify projectName"
+    }
+    return projectName
+}
+
 def buildImage(dockerfile = null, proxy = null) {
     stage("Build image") {
         def imageName = generateImageName()
@@ -107,12 +114,6 @@ def notifyGithub() {
     }
 }
 
-def generateImageName(projectName) {
-    if (projectName == null) {
-        raise "Must specify projectName"
-    }
-    return projectName
-}
 
 def generateImageTag() {
     def tag = null
