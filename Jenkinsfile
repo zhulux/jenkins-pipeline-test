@@ -56,10 +56,10 @@ def runForDeployment() {
 }
 
 def deploymentNamespace() {
-    if (env.BRANCH) == "master" {
+    if (env.BRANCH == "master") {
         return "staging"
     }
-    if (env.BRANCH) ==~ versionTagRegex {
+    if (env.BRANCH ==~ versionTagRegex) {
         return "production"
     }
 }
@@ -118,7 +118,7 @@ def generateImageTag() {
     def tag = null
     if (env.BRANCH_NAME = 'master') {
         return "staging-$commit_id"
-    } else if (env.BRANCH_NAME =~ versionTagRegex) {
+    } else if (env.BRANCH_NAME ==~ versionTagRegex) {
         return env.BRANCH_NAME
     } else {
         raise "Invalid branch, unable to generate image name"
