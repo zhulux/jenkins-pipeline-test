@@ -166,3 +166,5 @@ def deployToServer(imageName,
         sh(rolloutCmd.join(" "))
     }
 }
+
+runC()
