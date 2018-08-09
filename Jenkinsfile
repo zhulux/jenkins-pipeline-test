@@ -56,10 +56,10 @@ def runForDeployment() {
 }
 
 def deploymentNamespace() {
-    if env.BRANCH == "master" {
+    if (env.BRANCH) == "master" {
         return "staging"
     }
-    if env.BRANCH ==~ versionTagRegex {
+    if (env.BRANCH) ==~ versionTagRegex {
         return "production"
     }
 }
