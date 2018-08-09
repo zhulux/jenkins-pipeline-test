@@ -18,7 +18,7 @@ dockerregistryCredentialsid = "8e212ee4-a5ca-48f0-9822-2a3af5fa17da"
 versionTagRegex = /^v(\d+\.){0,2}\d+$/
 
 def run() {
-    def forDeployment = (env.BRANCH_NAME == 'master') || (env.BRANCH_NAME ~= versionTagRegex)
+    def forDeployment = (env.BRANCH_NAME == 'master') || (env.BRANCH_NAME ==~ versionTagRegex)
     def forPR = !forDeployment
 
     if (forDeployment) {
@@ -59,7 +59,7 @@ def deploymentNamespace() {
     if env.BRANCH == "master" {
         return "staging"
     }
-    if env.BRANCH ~= versionTagRegex {
+    if env.BRANCH ==~ versionTagRegex {
         return "production"
     }
 }
