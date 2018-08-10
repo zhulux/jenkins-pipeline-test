@@ -87,9 +87,9 @@ def generateImageName(projectName) {
 }
 
 def buildImage(dockerfile = null, proxy = null) {
+    def imageName = generateImageName()
+    def buildArgs = []
     stage("Build image") {
-        def imageName = generateImageName()
-        def buildArgs = []
         if (dockerfile != null) {
             buildArgs += ["-f", dockerfile]
         }
