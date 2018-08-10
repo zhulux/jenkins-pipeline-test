@@ -7,10 +7,11 @@ currentBuild.result = "SUCCESS"
 buildHttpProxy = "http://proxy_hk.astarup.com:39628"
 dockerHub = 'registry.astarup.com/astarup'
 projectName = 'tag-service'
-name = "${projectName}"
+deploymentName = 'tag-service'
+containerName = 'tag-service'
+imageName = 'tag-service'
 buildAgent = 'docker-build-bj3a'
 commit = ''
-imageName = ''
 branch = env.BRANCH_NAME
 dockerRegistryUrl = "https://registry.astarup.com/"
 dockerregistryCredentialsid = "8e212ee4-a5ca-48f0-9822-2a3af5fa17da"
@@ -33,7 +34,7 @@ def runC() {
 def runForPR() {
     checkoutRepo()
     def image = buildImage(proxy = buildHttpProxy)
-    runTests(image.imageName())
+    runElixirTests(image)
     notifyGitHub()
 }
 
@@ -41,17 +42,16 @@ def runForDeployment() {
     checkoutRepo()
     def image = buildImage(proxy = buildHttpProxy)
 
-    runElixirTests(image.imageName())
+    runElixirTests(image)
     pushToRepository(image)
 
     if (deploymentNamespace() == "production") {
         confirmDeployment()
     }
 
-    deployToServer(image.imageName(),
-                   generateImageTag(),
-                   "tag-service",
-                   "tag-service",
+    deployToServer(generateImageTag(),
+                   deploymentName,
+                   containerName,
                    deploymentNamespace())
 }
 
@@ -83,7 +83,6 @@ def generateImageName() {
 }
 
 def buildImage(dockerfile = null, proxy = null) {
-    def imageName = generateImageName()
     def buildArgs = []
     stage("Build image") {
         if (dockerfile != null) {
@@ -134,8 +133,7 @@ def pushToRepository(imageName, app) {
     }
 }
 
-def deployToServer(imageName,
-                   imageTag,
+def deployToServer(imageTag,
                    deploymentName,
                    containerName,
                    namespace,
