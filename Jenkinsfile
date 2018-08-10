@@ -80,7 +80,8 @@ def checkoutRepo() {
 
 def generateImageName(projectName) {
     if (projectName == null) {
-        raise "Must specify projectName"
+        println("Must specify projectName")
+        sh "exit 1"
     }
     return projectName
 }
