@@ -78,12 +78,8 @@ def checkoutRepo() {
     }
 }
 
-def generateImageName(projectName) {
-    if (projectName == null) {
-        println("Must specify projectName")
-        sh "exit 1"
-    }
-    return projectName
+def generateImageName() {
+    return "tag-service"
 }
 
 def buildImage(dockerfile = null, proxy = null) {
