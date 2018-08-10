@@ -91,6 +91,7 @@ def buildImage(dockerfile = null, proxy = null) {
         if (proxy != null) {
             buildArgs += ["--build-arg", "HTTP_PROXY=${proxy}"]
         }
+        buildArgs += ['.']
 
         return docker.build(imageName, buildArgs.join(" "))
     }
