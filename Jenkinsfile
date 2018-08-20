@@ -2,7 +2,7 @@
 
 def BUILD_IMAGE_HOST = 'docker-build-bj3a'
 // 2018-08-20 11:00 add cronjob
-def jobManifest = new File(jobFileName)
+// def jobManifest = new File(jobFileName)
 def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
 def pattern1 = ~regex
 def jobTemlateFile = readFile "optimusCronJobTemplate.yaml"
