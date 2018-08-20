@@ -10,6 +10,9 @@ def jobTemlateFile = readFile "optimusCronJobTemplate.yaml"
 def targetPath = "./jobs"
 
 pipeline {
+  agent {
+    label "${BUILD_IMAGE_HOST}"
+  }
   stages {
     // clone remote repo step
     stage('Clone Repository') {
