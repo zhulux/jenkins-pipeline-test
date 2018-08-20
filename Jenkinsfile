@@ -72,8 +72,9 @@ def jobGenerator(jobFile, pattern, templateFile, targetFilePath, currentBranch) 
     if ( !new File(targetFilePath).exists() ) {
         new File(targetFilePath).mkdirs()
     }
-    jobFile.eachLine { line->
+    jobFile.split('\n').each { line->
         if (( matcher = line =~ pattern )) {
+            println line
             jobList = [ jobName: matcher[0][2].replaceAll("::","-").toLowerCase(), cronTime: matcher[0][1], jobCommand: matcher[0][3], imageTag: "$currentBranch"]
             templateEngine = new groovy.text.GStringTemplateEngine()
             converteFile = templateEngine.createTemplate(templateFile).make(jobList)
