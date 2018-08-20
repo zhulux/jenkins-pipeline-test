@@ -50,7 +50,7 @@ pipeline {
       steps {
         script {
           try {
-            def jobFileName = readFile "./k8s_jobs.txt"
+            jobFileName = readFile "./k8s_jobs.txt"
             echo "Create jobs list"
             jobGenerator(jobFileName, pattern1, jobTemlateFile, targetPath, currentBranchToTag("$BRANCH_NAME"))
             echo "Delete the previous cronjob"
