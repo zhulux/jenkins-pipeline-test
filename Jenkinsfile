@@ -48,13 +48,13 @@ pipeline {
         branch 'staging'
       }
       steps {
+        jobFileName = readFile ("./k8s_jobs.txt").trim()
         script {
           try {
-            jobFileName = readFile "./k8s_jobs.txt"
             echo "Create jobs list"
  //           jobGenerator(jobFileName, pattern1, jobTemlateFile, targetPath, currentBranchToTag("$BRANCH_NAME"))
-            readFile("./k8s_jobs.txt").split('\n').each { line ->
-              if (( matcher = line =~ pattern )) {
+            jobFileName.split('\n').each { line ->
+              if (( matcher = line =~ pattern1 )) {
                 println line
               }
 
