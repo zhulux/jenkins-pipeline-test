@@ -52,11 +52,17 @@ pipeline {
           try {
             jobFileName = readFile "./k8s_jobs.txt"
             echo "Create jobs list"
-            jobGenerator(jobFileName, pattern1, jobTemlateFile, targetPath, currentBranchToTag("$BRANCH_NAME"))
+ //           jobGenerator(jobFileName, pattern1, jobTemlateFile, targetPath, currentBranchToTag("$BRANCH_NAME"))
+            readFile("./k8s_jobs.txt").split('\n').each { line ->
+              if (( matcher = line =~ pattern )) {
+                println line
+              }
+
+            }
             echo "Delete the previous cronjob"
             echo "kubectl delete cronjob -l app=optimus-job -n staging"
             echo "Running cronjob"
-            sh "kubectl create -f ${targetPath} -n staging"
+            echo "kubectl create -f ${targetPath} -n staging"
 
           } catch (err) {
             currentBuild.result = "FAILED"
@@ -68,21 +74,21 @@ pipeline {
   }
 }
 
-def jobGenerator(jobFile, pattern, templateFile, targetFilePath, currentBranch) {
-    if ( !new File(targetFilePath).exists() ) {
-        new File(targetFilePath).mkdirs()
-    }
-    jobFile.split('\n').each { line->
-        if (( matcher = line =~ pattern )) {
-            println line
-            jobList = [ jobName: matcher[0][2].replaceAll("::","-").toLowerCase(), cronTime: matcher[0][1], jobCommand: matcher[0][3], imageTag: "$currentBranch"]
-            templateEngine = new groovy.text.GStringTemplateEngine()
-            converteFile = templateEngine.createTemplate(templateFile).make(jobList)
-            writeFile file: "${targetFilePath}/${matcher[0][2].replaceAll("::","-")}.yaml", text: converteFile.toString()
-        }
-    }
-    sh "cat jobs/*"
-}
+////def jobGenerator(jobFile, pattern, templateFile, targetFilePath, currentBranch) {
+//    if ( !new File(targetFilePath).exists() ) {
+//        new File(targetFilePath).mkdirs()
+//    }
+//    jobFile.split('\n').each { line->
+//        if (( matcher = line =~ pattern )) {
+//            println line
+//            jobList = [ jobName: matcher[0][2].replaceAll("::","-").toLowerCase(), cronTime: matcher[0][1], jobCommand: matcher[0][3], imageTag: "$currentBranch"]
+//            templateEngine = new groovy.text.GStringTemplateEngine()
+//            converteFile = templateEngine.createTemplate(templateFile).make(jobList)
+//            writeFile file: "${targetFilePath}/${matcher[0][2].replaceAll("::","-")}.yaml", text: converteFile.toString()
+//        }
+//    }
+//    sh "cat jobs/*"
+//}
 
 
 // docker host list [ docker-build-bj3a、docker-build-cn ]
