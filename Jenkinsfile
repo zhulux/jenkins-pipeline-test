@@ -50,7 +50,7 @@ pipeline {
       steps {
   //      jobFileName = readFile ("./k8s_jobs.txt").trim()
         script {
-          try {
+//          try {
             echo "Create jobs list"
  //           jobGenerator(jobFileName, pattern1, jobTemlateFile, targetPath, currentBranchToTag("$BRANCH_NAME"))
             
@@ -66,10 +66,10 @@ pipeline {
             echo "Running cronjob"
             echo "kubectl create -f ${targetPath} -n staging"
 
-          } catch (err) {
-            currentBuild.result = "FAILED"
-            throw err
-          }
+//          } catch (err) {
+//            currentBuild.result = "FAILED"
+//            throw err
+//          }
         }
       }
     }
