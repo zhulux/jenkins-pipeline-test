@@ -5,7 +5,7 @@ BUILD_IMAGE_HOST = 'docker-build-bj3a'
 // def jobManifest = new File(jobFileName)
 def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
 def pattern1 = ~regex
-def jobTemlateFile = readFile "optimusCronJobTemplate.yaml"
+//def jobTemlateFile = readFile "optimusCronJobTemplate.yaml"
 def targetPath = "./jobs"
 
 @NonCPS 
@@ -19,7 +19,6 @@ node(BUILD_IMAGE_HOST) {
   checkout scm
 
   stage('readfile test') {
-    sh "echo readfile"
     sh "pwd"
     def jobFileName = "./k8s_jobs.txt"
     println readFile(file: jobFileName)
