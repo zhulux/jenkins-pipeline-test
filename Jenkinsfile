@@ -27,7 +27,7 @@ node(BUILD_IMAGE_HOST) {
  //       println line
     println matcher[0][1]
  //     }
-    }
+ //   }
     matcher = ''
 
   }
