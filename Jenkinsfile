@@ -23,9 +23,10 @@ node(BUILD_IMAGE_HOST) {
     def jobFileName = "./k8s_jobs.txt"
     readFile(file: jobFileName).split("\r?\n").each { line->
 //    def matcher = readFile(file: jobFileName) =~ "${jobPattern}"
- //     if (( matcher = line =~ "${jobPattern}" )) {
-    println line
-    sh "date"
+    if (( matcher = line =~ "${jobPattern}" )) {
+        println line
+        sh "date"
+    }
  //   println matcher[0][1]
  //     }
     }
