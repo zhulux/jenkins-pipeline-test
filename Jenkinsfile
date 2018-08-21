@@ -10,7 +10,9 @@ def targetPath = "./jobs"
 
 pipeline {
   agent {
-    label "${BUILD_IMAGE_HOST}"
+    node {
+      label "${BUILD_IMAGE_HOST}"
+    }
   }
   stages {
     // clone remote repo step
@@ -39,7 +41,9 @@ pipeline {
 
     stage('Create cronjob Etl on kubernetes staging') {
       agent {
-        label "${BUILD_IMAGE_HOST}"
+        node {
+          label "${BUILD_IMAGE_HOST}"
+        }
       }
 //      options {
 //        skipDefaultCheckout()
