@@ -41,9 +41,9 @@ pipeline {
       agent {
         label "${BUILD_IMAGE_HOST}"
       }
-      options {
-        skipDefaultCheckout()
-      }
+//      options {
+//        skipDefaultCheckout()
+//      }
       when {
         branch 'staging'
       }
