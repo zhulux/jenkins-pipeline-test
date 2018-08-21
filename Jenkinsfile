@@ -21,6 +21,7 @@ node(BUILD_IMAGE_HOST) {
     def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
     def jobPattern = ~regex
     def jobFileName = "./k8s_jobs.txt"
+    def matcher = [:]
 //    readFile(file: jobFileName).split("\r?\n").each { line->
 //    def matcher = readFile(file: jobFileName) =~ "${jobPattern}"
 //    if (( matcher = line =~ "${jobPattern}" )) {
