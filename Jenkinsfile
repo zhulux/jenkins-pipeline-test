@@ -8,14 +8,20 @@ def pattern1 = ~regex
 def jobTemlateFile = readFile "optimusCronJobTemplate.yaml"
 def targetPath = "./jobs"
 
+@NonCPS 
+def get_content(){ 
+    def file = "${WORKSPACE}/k8s_jobs.txt" 
+    def content = readFile(file) 
+    return content 
+} 
+
 node(BUILD_IMAGE_HOST) {
   checkout scm
 
   stage('readfile test') {
     sh "echo readfile"
     sh "pwd"
-    def jobName = readFile("./k8s_jobs.txt")
-    jobName.split('\n').each { line ->
+    get_content().split('\n').each { line ->
       if (( matcher = line =~ pattern1 )) {
         println line
       }
