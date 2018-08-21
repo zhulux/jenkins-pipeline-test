@@ -25,7 +25,7 @@ node(BUILD_IMAGE_HOST) {
 //    def matcher = readFile(file: jobFileName) =~ "${jobPattern}"
  //     if (( matcher = line =~ "${jobPattern}" )) {
     println line
-    sh "date""
+    sh "date"
  //   println matcher[0][1]
  //     }
     }
