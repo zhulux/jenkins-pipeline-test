@@ -13,6 +13,7 @@ node(BUILD_IMAGE_HOST) {
 
   stage('readfile test') {
     sh "echo readfile"
+    sh "pwd"
     def jobName = readFile("./k8s_jobs.txt")
     jobName.split('\n').each { line ->
       if (( matcher = line =~ pattern1 )) {
