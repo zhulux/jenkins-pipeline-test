@@ -8,77 +8,94 @@ def pattern1 = ~regex
 def jobTemlateFile = readFile "optimusCronJobTemplate.yaml"
 def targetPath = "./jobs"
 
-pipeline {
-  agent {
-    node {
-      label "${BUILD_IMAGE_HOST}"
+node(BUILD_IMAGE_HOST) {
+  checkout scm
+
+  stage('readfile test') {
+    sh "echo readfile""  
+    readFile("./k8s_jobs.txt").split('\n').each { line ->
+      if (( matcher = line =~ pattern1 )) {
+        println line
+      }
+
     }
+    matcher = ''
+
   }
-  stages {
-    // clone remote repo step
-    stage('Clone Repository') {
-      agent {
-        label "${BUILD_IMAGE_HOST}"
-      }
-      steps {
-        script {
-          try {
-            if ( env.BRANCH_NAME == 'staging' ) {
-              echo "Current branch is ${env.BRANCH_NAME}"
-            } else if(env.BRANCH_NAME ==~ /v.*/ ) {
-              echo "Current branch is ${env.BRANCH_NAME}"
-            }
-          commit_id = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
 
-
-          } catch (exc) {
-            echo "some error"
-            throw exc
-          }
-        }
-      }
-    }
-
-    stage('Create cronjob Etl on kubernetes staging') {
-      agent {
-        node {
-          label "${BUILD_IMAGE_HOST}"
-        }
-      }
-//      options {
-//        skipDefaultCheckout()
-//      }
-      when {
-        branch 'staging'
-      }
-      steps {
-  //      jobFileName = readFile ("./k8s_jobs.txt").trim()
-        script {
-//          try {
-            echo "Create jobs list"
- //           jobGenerator(jobFileName, pattern1, jobTemlateFile, targetPath, currentBranchToTag("$BRANCH_NAME"))
-            
-            readFile("./k8s_jobs.txt").split('\n').each { line ->
-              if (( matcher = line =~ pattern1 )) {
-                println line
-              }
-
-            }
-            matcher = ''
-            echo "Delete the previous cronjob"
-            echo "kubectl delete cronjob -l app=optimus-job -n staging"
-            echo "Running cronjob"
-            echo "kubectl create -f ${targetPath} -n staging"
-
-//          } catch (err) {
-//            currentBuild.result = "FAILED"
-//            throw err
-//          }
-        }
-      }
-    }
-  }
 }
+
+//pipeline {
+//  agent {
+//    node {
+//      label "${BUILD_IMAGE_HOST}"
+//    }
+//  }
+//  stages {
+//    // clone remote repo step
+//    stage('Clone Repository') {
+//      agent {
+//        label "${BUILD_IMAGE_HOST}"
+//      }
+//      steps {
+//        script {
+//          try {
+//            if ( env.BRANCH_NAME == 'staging' ) {
+//              echo "Current branch is ${env.BRANCH_NAME}"
+//            } else if(env.BRANCH_NAME ==~ /v.*/ ) {
+//              echo "Current branch is ${env.BRANCH_NAME}"
+//            }
+//          commit_id = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+//
+//
+//          } catch (exc) {
+//            echo "some error"
+//            throw exc
+//          }
+//        }
+//      }
+//    }
+
+//    stage('Create cronjob Etl on kubernetes staging') {
+//      agent {
+//        node {
+//          label "${BUILD_IMAGE_HOST}"
+//        }
+//      }
+////      options {
+////        skipDefaultCheckout()
+////      }
+//      when {
+//        branch 'staging'
+//      }
+//      steps {
+//  //      jobFileName = readFile ("./k8s_jobs.txt").trim()
+//        script {
+////          try {
+//            echo "Create jobs list"
+// //           jobGenerator(jobFileName, pattern1, jobTemlateFile, targetPath, currentBranchToTag("$BRANCH_NAME"))
+//            
+//            readFile("./k8s_jobs.txt").split('\n').each { line ->
+//              if (( matcher = line =~ pattern1 )) {
+//                println line
+//              }
+//
+//            }
+//            matcher = ''
+//            echo "Delete the previous cronjob"
+//            echo "kubectl delete cronjob -l app=optimus-job -n staging"
+//            echo "Running cronjob"
+//            echo "kubectl create -f ${targetPath} -n staging"
+//
+////          } catch (err) {
+////            currentBuild.result = "FAILED"
+////            throw err
+////          }
+//        }
+//      }
+//    }
+//  }
+//}
 
 ////def jobGenerator(jobFile, pattern, templateFile, targetFilePath, currentBranch) {
 //    if ( !new File(targetFilePath).exists() ) {
