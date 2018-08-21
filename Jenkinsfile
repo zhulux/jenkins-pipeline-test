@@ -22,7 +22,7 @@ node(BUILD_IMAGE_HOST) {
     readFile(file: jobFileName).splitEachLine('\n') { line ->
 //      if (( matcher = line =~ jobPattern )) {
         println line
-      }
+//        }
 
     }
     matcher = ''
