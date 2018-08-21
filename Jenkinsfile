@@ -21,7 +21,7 @@ node(BUILD_IMAGE_HOST) {
     def jobFileName = "./k8s_jobs.txt"
     readFile(file: jobFileName).split("\n").each { line->
       if (( matcher = line =~ jobPattern )) {
-        println line
+        println matcher[0][1]
       }
     }
     matcher = ''
