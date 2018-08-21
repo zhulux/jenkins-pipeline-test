@@ -18,6 +18,8 @@ node(BUILD_IMAGE_HOST) {
 
   stage('readfile test') {
     sh "pwd"
+    def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
+    def jobPattern = ~regex
     def jobFileName = "./k8s_jobs.txt"
     readFile(file: jobFileName).split("\r?\n").each { line->
       if (( matcher = line =~ "${jobPattern}" )) {
