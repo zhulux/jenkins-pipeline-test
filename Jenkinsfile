@@ -19,11 +19,8 @@ node(BUILD_IMAGE_HOST) {
   stage('readfile test') {
     sh "pwd"
     def jobFileName = "./k8s_jobs.txt"
-    readFile(file: jobFileName).splitEachLine() { line ->
-//      if (( matcher = line =~ jobPattern )) {
+    readFile(file: jobFileName).splitEachLine("${jobPattern}") { line ->
         println line
-//        }
-
     }
     matcher = ''
 
