@@ -28,6 +28,7 @@ node(BUILD_IMAGE_HOST) {
     for (String i : readFile(file: jobFileName).split("\r?\n")) {
         println i
         println i.getClass()
+        println a.length()
         if (( matcher = i =~ "${jobPattern}" )) {
           println matcher[0][1]
           println matcher[0][2]
