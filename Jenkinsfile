@@ -48,17 +48,19 @@ pipeline {
         branch 'staging'
       }
       steps {
-        jobFileName = readFile ("./k8s_jobs.txt").trim()
+  //      jobFileName = readFile ("./k8s_jobs.txt").trim()
         script {
           try {
             echo "Create jobs list"
  //           jobGenerator(jobFileName, pattern1, jobTemlateFile, targetPath, currentBranchToTag("$BRANCH_NAME"))
-            jobFileName.split('\n').each { line ->
+            
+            readFile("./k8s_jobs.txt").split('\n').each { line ->
               if (( matcher = line =~ pattern1 )) {
                 println line
               }
 
             }
+            matcher = ''
             echo "Delete the previous cronjob"
             echo "kubectl delete cronjob -l app=optimus-job -n staging"
             echo "Running cronjob"
