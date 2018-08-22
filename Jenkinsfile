@@ -1,6 +1,7 @@
 #!groovy
 
-BUILD_IMAGE_HOST = 'docker-build-bj3a'
+//BUILD_IMAGE_HOST = 'docker-build-bj3a'
+BUILD_IMAGE_HOST = 'docker-build-cn'
 //def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
 //def jobPattern = ~regex
 def jobTemlateFile = "optimusCronJobTemplate.yaml"

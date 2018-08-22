@@ -1,0 +1,27 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: ${jobName}
+  labels:
+    app: optimus-job
+spec:
+  schedule: "${cronTime}"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: optimus
+            image: registry.astarup.com/astarup/optimus:${imageTag}
+            envFrom:
+            - configMapRef:
+                name: optimus
+            args:
+            - /bin/bash
+            - -l 
+            - -c
+            - ${jobCommand}
+          restartPolicy: OnFailure
+          concurrencyPolicy: Forbid
+          successfulJobsHistoryLimit: 3
+          failedJobsHistoryLimit: 3
