@@ -5,6 +5,7 @@ BUILD_IMAGE_HOST = 'docker-build-bj3a'
 //def jobPattern = ~regex
 def jobTemlateFile = "optimusCronJobTemplate.yaml"
 def targetPath = "./jobs"
+def imagetag = "v0.0.2"
 
 @NonCPS 
 def get_content(){ 
@@ -16,32 +17,41 @@ def get_content(){
 node(BUILD_IMAGE_HOST) {
   checkout scm
 
-  stage('readfile test') {
-    sh "pwd"
-    def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
-    def jobPattern = ~regex
-    def jobFileName = "./k8s_jobs.txt"
-    def matcher = [:]
-//    readFile(file: jobFileName).split("\r?\n").each { line->
-//    def matcher = readFile(file: jobFileName) =~ "${jobPattern}"
-//    if (( matcher = line =~ "${jobPattern}" )) {
-    for (String i : readFile(file: jobFileName).split("\r?\n")) {
-        println i
-        println i.getClass()
-        println i.length()
-        if (( matcher = i =~ "${jobPattern}" )) {
-          println matcher[0][1]
-          println matcher[0][2]
-        }
-    }
- //   println matcher[0][1]
- //     }
-//    }
-    matcher = ''
+  stage('generate job yaml') {
+    sh "sed -i 's/IMAGE_TAG/${imagetag}/g' extractJob.groovy"
+    sh "groovy extractJob.groovy"
+    sh "cat jobs/*"
 
   }
 
 }
+
+//  stage('readfile test') {
+//    sh "pwd"
+//    def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
+//    def jobPattern = ~regex
+//    def jobFileName = "./k8s_jobs.txt"
+//    def matcher = [:]
+////    readFile(file: jobFileName).split("\r?\n").each { line->
+////    def matcher = readFile(file: jobFileName) =~ "${jobPattern}"
+////    if (( matcher = line =~ "${jobPattern}" )) {
+////    for (String i : readFile(file: jobFileName).split("\r?\n")) {
+////        println i
+////        println i.getClass()
+////        println i.length()
+////        if (( matcher = i =~ "${jobPattern}" )) {
+////          println matcher[0][1]
+////          println matcher[0][2]
+////        }
+////    }
+// //   println matcher[0][1]
+// //     }
+////    }
+//    matcher = ''
+//
+//  }
+//
+//}
 
 //pipeline {
 //  agent {
