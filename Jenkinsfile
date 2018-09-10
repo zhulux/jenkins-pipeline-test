@@ -1,32 +1,86 @@
 #!groovy
+import groovy.json.JsonSlurper
 
 //BUILD_IMAGE_HOST = 'docker-build-bj3a'
-BUILD_IMAGE_HOST = 'docker-build-cn'
-//def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
-//def jobPattern = ~regex
-def jobTemlateFile = "optimusCronJobTemplate.yaml"
-def targetPath = "./jobs"
-def imagetag = "v0.0.2"
-
-@NonCPS 
-def get_content(){ 
-    def file = "${WORKSPACE}/k8s_jobs.txt" 
-    def content = readFile(file) 
-    return content 
-} 
+BUILD_IMAGE_HOST = 'docker-build-bj3a'
 
 node(BUILD_IMAGE_HOST) {
   checkout scm
 
-  stage('generate job yaml') {
-    sh "sed -i 's/IMAGE_TAG/${imagetag}/g' extractJob.groovy"
-    sh "groovy extractJob.groovy"
-    sh "cat jobs/*"
+  stage('generate job yaml test') {
+    timeout(time: 300, unit: 'SECONDS') {
+        waitUntil {
+                return kubeJobStatus('devops','pi')
+        }
+    }
 
   }
 
 }
 
+def kubeJobStatus(namespace, jobName) {
+    def script = "kubectl get job ${jobName} -o json -n ${namespace}"
+    def stdout = sh script: "${script}", returnStdout: true
+    def jsonSlurper = new JsonSlurper()
+    def json = jsonSlurper.parseText(stdout.trim())
+    def isComplete = true
+    try {
+        if (json.status.conditions.type[0] && json.status.conditions.type[0] == 'Complete') {
+           return isComplete
+        } else if (json.status.conditions.type[0] && json.status.conditions.type[0] == 'Failed'){
+            // throw new WordContainsException()
+            // throw new RuntimeException ( "Word contains one or more spaces" ) ;
+            echo "Current job task is Failed, Please check pod logs on kubernetes cluster!"
+            sh 'exit 1'
+            
+        } else {
+            return false
+        }        
+    } catch (java.lang.NullPointerException e) {
+        return false
+        
+    }
+    return isComplete && json.status.conditions.type[0] == 'Complete'
+}
+
+def kubeJobGen(jobFile, jobImage, jobCommand, jobName) {
+    jobParameter = [ podname: jobName, image: jobImage, command: jobCommand ]
+    def jobTemlateFile = new File(jobFile)
+    templateEngine = new groovy.text.GStringTemplateEngine()
+    converteFile = templateEngine.createTemplate(jobTemlateFile).make(jobParameter)
+    return converteFile.toString()
+}
+
+
+
+
+////BUILD_IMAGE_HOST = 'docker-build-bj3a'
+//BUILD_IMAGE_HOST = 'docker-build-cn'
+////def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/
+////def jobPattern = ~regex
+//def jobTemlateFile = "optimusCronJobTemplate.yaml"
+//def targetPath = "./jobs"
+//def imagetag = "v0.0.2"
+//
+//@NonCPS 
+//def get_content(){ 
+//    def file = "${WORKSPACE}/k8s_jobs.txt" 
+//    def content = readFile(file) 
+//    return content 
+//} 
+//
+//node(BUILD_IMAGE_HOST) {
+//  checkout scm
+//
+//  stage('generate job yaml') {
+//    sh "sed -i 's/IMAGE_TAG/${imagetag}/g' extractJob.groovy"
+//    sh "groovy extractJob.groovy"
+//    sh "cat jobs/*"
+//
+//  }
+//
+//}
+//
 //  stage('readfile test') {
 //    sh "pwd"
 //    def regex = /^(\S.*\*+?)\s+JOB_NAME=(\S.*)\s+(cd\s.*)/

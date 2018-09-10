@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ${podname}
+  labels:
+    app: ${podname}
+spec:
+  template:
+    spec:
+      containers:
+      - name: ${podname}
+        image: ${image}
+#        command: ["perll",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
+        command: ${command}
+      restartPolicy: Never
+  backoffLimit: 1
