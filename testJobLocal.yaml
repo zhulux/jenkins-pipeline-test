@@ -10,7 +10,10 @@ spec:
       containers:
       - name: ${podname}
         image: ${image}
-#        command: ["perll",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
-        command: ${command}
+        args:
+        - /bin/bash
+        - -l
+        - -c
+        - ${command}
       restartPolicy: Never
   backoffLimit: 1
