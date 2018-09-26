@@ -1,166 +1,177 @@
 #!groovy
-import groovy.json.JsonSlurper
 
-
+// keep 20 builds history
+properties([[$class: 'BuildDiscarderProperty', strategy: [$class: 'LogRotator', numToKeepStr: '20']]]);
 def lib = library('ci-shared-libs').com.starup
-bearychatHookUrl = env.BEARYCHAT_HOOK_URL
-bearychatHookGroup = 'testgroup'
+def msgUtils = lib.MessageLego.new()
+def buildAgent = 'docker-build-bj3a'
+def dockerHub = 'registry.astarup.com/astarup'
+def projectName = 'optimus'
+buildHttpProxy = "http://proxy_hk.astarup.com:39628"
+dockerRegistryUrl = "https://registry.astarup.com"
+dockerregistryCredentialsid = "8e212ee4-a5ca-48f0-9822-2a3af5fa17da"
+currentBuild.result = "SUCCESS"
+imageName = "${dockerHub}/${projectName}"
+imageTag = ''
+shortCommitId = ''
+versionTagRegex = /^v(\d+\.){0,2}\d+$/
 
-//BUILD_IMAGE_HOST = 'docker-build-bj3a'
-BUILD_IMAGE_HOST = 'docker-build-bj3a'
-def jobfilePath = './migrateTempJob.yml'
-kubeUtils = lib.KubeUtils.new()
+def commitMsg = ''
+def branch = env.BRANCH_NAME
+def bearychatHookUrl = env.BEARYCHAT_HOOK_URL
+def bearychatHookGroup = 'testgroup'
+def kubeTestNs = 'test'
+def kubeQaNs = 'qa'
+def kubeStageNs = 'staging'
+def kubeProdNs = 'production'
+def targetPath = "./jobs"
 
 
-txt = '''
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: ${podname}
-  labels:
-    app: ${podname}
-spec:
-  template:
-    spec:
-      containers:
-      - name: ${podname}
-        image: ${image}
-#        command: ["perll",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
-        command: ${command}
-      restartPolicy: Never
-  backoffLimit: 1
-'''
+def STAGING_DEPLOY_CONTAINER = ["optimus-optimus":"optimus-optimus", "optimus-sidekiq":"optimus-sidekiq", "optimus-faktory":"optimus-faktory", "optimus-sidekiq-slow":"optimus-sidekiq-slow"]
+def PRODUCT_DEPLOY_CONTAINER = ["prod-optimus-prod-optimus":"prod-optimus-optimus", "prod-optimus-sidekiq":"prod-optimus-sidekiq", "prod-optimus-faktory":"prod-optimus-faktory", "prod-optimus-sidekiq-slow":"prod-optimus-sidekiq-slow"]
+def stageConfigMap = "optimus"
+def prodConfigMap = "optimus-optimus"
+def Object image
 
-node(BUILD_IMAGE_HOST) {
-  checkout scm
-  stage('generate job yaml test') {
-    namespace = 'devops'
-    jobName = 'db-migrate-' + getCommitHash()
-    targetFilePath = "./migrate-job.yaml"
 
-    def fileContents = readFile file: "${jobfilePath}", encoding: "UTF-8"
-    jobContents = kubeUtils.jobGenerate("${fileContents}", "daocloud.io/zhulux/fluentd-journald-elasticsearch:master-036c813avc", '"bin/rails", "db:migrate"', "${jobName}")
-    writeFile file: "${targetFilePath}", text: jobContents
-    sh "cat ${targetFilePath}"
+/*
+ Jenkinsfile main body
+*/
 
-    // create job
-    sh "kubectl create -f ${targetFilePath} -n ${namespace}"
-
-    // check job status
-    try {
-        kubeJobStatus("${namespace}", "${jobName}", 40, "${bearychatHookGroup}", "${bearychatHookUrl}")
-    } finally  {
-        sh "kubectl delete -f ${targetFilePath} -n ${namespace}"
+try {
+  node("${buildAgent}") {
+    stage("Checkout Project") {
+      def scmVars = checkout scm
+      imageTag = genImageTag(env.BRANCH_NAME)
     }
 
-    // try {
-    //   kubeWaitForJob("${namespace}", "${jobName}", 40)
-    // } catch (err) {
-    //   println("timeout, please check logs")
-    //   throw err
-    // } finally {
-    //   println('End pipeline !')
-    //   if (kubeUtils.jobStatus("${namespace}","${jobName}") == 'failed') {
-    //     msg = kubeUtils.getPodLog("${namespace}", "${jobName}")
-    //     println "${msg}"
-    //     // todo notify
-    //     currentBuild.result = "FAIlED"
-    //     errorMsg = msgUtils.errorMsg("${msg}")
-    //     bearyNotifySend attachments: "${errorMsg}", channel: "${bearychatHookGroup}", endpoint: "${bearychatHookUrl}"
-    //   }
-    //   sh "kubectl delete -f ${targetFilePath} -n ${namespace}"
-    // }
+    stage("Build Image") {
+      image = dockerBuild("${imageName}","${buildHttpProxy}")
+    }
 
+    stage("Unit test") {
+      try {
+        runElixirTests()
+      } catch (someErr) {
+        throw someErr
+      } finally {
+        // bearyNotifySend Notify
+      }
+    }
+  }
+
+  if (branch == 'staging') {
+    namespace = "${kubeStageNs}"
+
+    stage("Publish Image to Registry") {
+      node("${buildAgent}") {
+        dockerPush(image,"$imageTag")
+      }
+    }
+
+    stage("Deploy to Staging") {
+      // deploy to staging
+      // SUCCESSFUL Notify bearychatSend
+      node("${buildAgent}") {
+        kubeDBMigrate(imageFullName: "${imageName}:${imageTag}", namespace: "${namespace}", command: '"bundle", "exec", "rails", "db:migrate"', configMap: "${stageConfigMap}")
+
+        // deploy multi service (key: deploymentName, value: containerName)
+        STAGING_DEPLOY_CONTAINER.each { key, value ->
+            deployToServer(namespace: "${namespace}", deploymentName: key, imageFullName: "${imageName}:${imageTag}", containerName: value)
+        }
+      }
+    }
+
+    stage("Create ETL Job on kubernetes staging") {
+      node("${buildAgent}") {
+        updateEtlTask("${namespace}", "${imageTag}", "${targetPath}")
+        commitMsg = getCommitMsg()
+        deployMsg = msgUtils.deployMsg("${branch}", "${namespace}", "http://optimus.zhulu.ltd","${commitMsg}")
+        bearyNotifySend attachments: "${deployMsg}", channel: "${bearychatHookGroup}", endpoint: "${bearychatHookUrl}"
+      }
+    }
+
+
+  } else if (branch ==~ versionTagRegex) {
+    namespace = "${kubeProdNs}"
+
+    stage("Publish Image to Registry") {
+      node("${buildAgent}") {
+        dockerPush(image,"$imageTag")
+      }
+    }
+
+    stage("Deploy to Production") {
+      waitForApprove("Deploy to Production?", 3)
+      node("${buildAgent}") {
+        kubeDBMigrate(imageFullName: "${imageName}:${imageTag}", namespace: "${namespace}", command: '"bundle", "exec", "rails", "db:migrate"', configMap: "${prodConfigMap}")
+
+        PRODUCT_DEPLOY_CONTAINER.each { key, value ->
+          deployToServer(namespace: "${namespace}", deploymentName: key, imageFullName: "${imageName}:${imageTag}", containerName: value)
+        }
+      }
+    }
+
+    stage("Create ETL Job on kubernetes Production") {
+      node("${buildAgent}") {
+        updateEtlTask("${namespace}", "${imageTag}", "${targetPath}")
+        commitMsg = getCommitMsg()
+        deployMsg = msgUtils.deployMsg("${branch}", "${namespace}", "http://optimus.zhulu-inc.com","${commitMsg}")
+        bearyNotifySend attachments: "${deployMsg}", channel: "${bearychatHookGroup}", endpoint: "${bearychatHookUrl}"
+      }
+    }
+
+    // SUCCESSFUL Notify bearychatSend
+
+  } else if (branch ==~ /^od-(\d+\.){0,2}\d+$/) {
+    docker.image('ruby:2.4.2').inside('-u root'){
+      stage('od gem build & push') {
+        sh "./dao-od-gem-jenkins.sh"
+      }
+    }
+    commitMsg = getCommitMsg()
+    deployMsg = msgUtils.deployMsg("${branch}", "odGems", "http://optimus.zhulu-inc.com","${commitMsg}")
+    bearyNotifySend attachments: "${deployMsg}", channel: "${bearychatHookGroup}", endpoint: "${bearychatHookUrl}"
+  }
+
+
+} catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException e) {
+  node("${buildAgent}") {
+    echo e.getCauses().join(", ")
+    currentBuild.result = "ABORTED"
+    errorMsg = msgUtils.errorMsg("${aborteMsg}")
+    bearyNotifySend attachments: "${errorMsg}", channel: "${bearychatHookGroup}", endpoint: "${bearychatHookUrl}"
+  }
+} catch (err) {
+  node("${buildAgent}") {
+    currentBuild.result = "FAILURE"
+    errorMsg = msgUtils.errorMsg(err,'')
+    bearyNotifySend attachments: "${errorMsg}", channel: "${bearychatHookGroup}", endpoint: "${bearychatHookUrl}"
+    throw err
   }
 }
 
-// def checkTaskStage(namespace, taskName, taskTimeout) {
-//   def taskStatus = ''
-//   try {
-//     kubeWaitForJob("${namespace}", "${taskName}", taskTimeout)
-//     taskStatus = 'SUCCESS'
-//     println("Job successfully completed")
-//   } catch (err) {
-//     //println("Timeout or Image pull failed, please check build logs")
-//     try {
-//         msg = kubeUtils.getPodLog("${namespace}", "${taskName}")
-//         currentBuild.result = "FAILURE"
-//         errorMsg = msgUtils.errorMsg("${msg}")
-//         bearyNotifySend attachments: "${errorMsg}", channel: "${bearychatHookGroup}", endpoint: "${bearychatHookUrl}"
-//     } catch (errhaha) {
-//         //msg = "Current scripts exit code is 1, Maybe waiting to start: image can not be pulled"
-//         msg = getErrorLog("${namespace}", "${taskName}")
-//         currentBuild.result = "FAILURE"
-//         errorMsg = msgUtils.errorMsg("${msg}")
-//         bearyNotifySend attachments: "${errorMsg}", channel: "${bearychatHookGroup}", endpoint: "${bearychatHookUrl}"
-//     }
-//     throw err
-//   } finally {
-//     println('End the stage !')
-//     sh "kubectl delete -f ${targetFilePath} -n ${namespace}"
-//   }
-// }
 
-/*
-Some function
-*/
 
-//
-// def kubeWaitForJob(namespace, selector, timeoutSecs = 300) {
-// //    def kubeUtils = new KubeUtils()
-//     timeout(time: timeoutSecs, unit: 'SECONDS') {
-//         waitUntil {
-//             return kubeJobStatus(namespace, selector)
-//         }
-//     }
-// }
-//
-// //
-// def getErrorLog(namespace, selector) {
-//   def getJobPod = $/eval "kubectl get po -l job-name=${selector} -n ${namespace} --show-all -oname | tail -1"/$
-//   def podName = sh script: "${getJobPod}", returnStdout: true
-  
-//   def getJobMessage = "kubectl logs --tail 20 -n ${namespace} ${podName} 2> >>&1; done) || true"
-  
-//   //sh script: "${getJobMessage}"
-//   //def errorMessage = sh script: $/eval "/bin/sh -c kubectl logs --tail 20 -n ${namespace} ${podName}  true "/$, returnStdout: true
-//   def errorMessage = sh script: "${getJobMessage}", returnStdout: true
+def updateEtlTask(namespace, imageTag, targetFilePath) {
+  /*
+    Create cronjob from local job template, but jobBuilder generate and job
+    template must exist on project rpository.
+  */
+    sh "sed -i 's/IMAGE_TAG/$imageTag/g' jobBuilder.groovy"
+    sh "groovy jobBuilder.groovy"
+    // Check target job file
+    sh "cat $targetFilePath/*"
+    echo "Delete the previous cronjob"
+    // Delete old cronjob
+    sh "kubectl delete cronjob -l app=optimus-job -n $namespace"
+    // Create cronjob from targetpath
+    sh "kubectl create -f $targetFilePath -n $namespace"
+}
 
-//   return errorMessage
-// }
-
-//
-// def kubeJobStatus(namespace, jobName) {
-//     def script = "kubectl get job ${jobName} -o json -n ${namespace}"
-//     def stdout = sh script: "${script}", returnStdout: true
-//     def jsonSlurper = new JsonSlurper()
-//     def json = jsonSlurper.parseText(stdout.trim())
-//     def isComplete = true
-//     try {
-//         if (json.status.conditions.type[0] && json.status.conditions.type[0] == 'Complete') {
-//            return isComplete
-//         } else if (json.status.conditions.type[0] && json.status.conditions.type[0] == 'Failed'){
-//             status = "failed"
-//             echo "Current job task is Failed, Please check pod logs on kubernetes cluster!"
-//             return status
-//         } else {
-//             return false
-//         }
-//     } catch (java.lang.NullPointerException e) {
-//         return false
-//     } catch (err) {
-//         return false
-//     }
-//     return isComplete && json.status.conditions.type[0] == 'Complete'
-// }
-//
-//
-// @NonCPS
-// def kubeJobGen(jobContents, jobImage, jobCommand, jobName) {
-//     jobParameter = [ podname: jobName, image: jobImage, command: jobCommand ]
-//     def engine = new groovy.text.StreamingTemplateEngine()
-//     def template = engine.createTemplate("${jobContents}").make(jobParameter)
-//     def templateString = template.toString()
-//     return templateString
-// }
+def runElixirTests() {
+    docker.image(imageName).inside {
+        sh 'echo success'
+    }
+}
 
