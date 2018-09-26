@@ -1,0 +1,79 @@
+apiVersion: batch/v1
+kind: Job
+#metadata:
+#  name: ${podname}
+#  labels:
+#    app: ${podname}
+metadata:
+  name: ${podname}
+  labels:
+    app: ${podname}
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+#      containers:
+#      - name: ${podname}
+#        image: ${image}
+#        args:
+#        - /bin/bash
+#        - -l
+#        - -c
+#        - ${command}
+      containers:
+      - name: ${podname}
+        image: ${image}
+        command: ["/bin/bash", "-c", ${command}]
+#        volumeMounts:
+#        - name: db-config-volume
+#          mountPath: "/usr/src/app/config/database.yml"
+#          subPath: database.yml
+#        - name: settings-config-volume
+#          mountPath: "/usr/src/app/config/settings.yml"
+#          subPath: settings.yml
+#        - name: storage-config-volume
+#          mountPath: "/usr/src/app/config/storage.yml"
+#          subPath: storage.yml
+#        - name: master-key-volume
+#          mountPath: "/usr/src/app/config/master.key"
+#          subPath: master.key
+#        env:
+#        - name: DATABASE_PASSWORD
+#          valueFrom:
+#            secretKeyRef:
+#              name: turbo-api-secrets
+#              key: dbPassword
+#        - name: JWT_SECRET
+#          valueFrom:
+#            secretKeyRef:
+#              name: turbo-api-secrets
+#              key: jwtSecret
+#        - name: RAILS_ENV
+#          value: production
+#      volumes:
+#      - name: db-config-volume
+#        configMap:
+#          name: turbo-api-config
+#          items:
+#          - key: database-yml
+#            path: database.yml
+#      - name: settings-config-volume
+#        configMap:
+#          name: turbo-api-config
+#          items:
+#          - key: settings-yml
+#            path: settings.yml
+#      - name: storage-config-volume
+#        configMap:
+#          name: turbo-api-config
+#          items:
+#          - key: storage-yml
+#            path: storage.yml
+#      - name: master-key-volume
+#        secret:
+#          secretName: turbo-api-secrets
+#          items:
+#          - key: secretKeyBase
+#            path: master.key
+#    

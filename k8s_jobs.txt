@@ -1,0 +1,36 @@
+0,15,30,45 * * * * JOB_NAME=Etl::InvestCasesWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::InvestCasesWorker.new.perform' >> /dev/stdout 2>&1
+
+0,15,30,45 * * * * JOB_NAME=Etl::QmpInvestNewsWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::QmpInvestNewsWorker.new.perform' >> /dev/stdout 2>&1
+
+0 * * * * JOB_NAME=TakeoverInvestmentWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'TakeoverInvestmentWorker.new.perform' >> /dev/stdout 2>&1
+
+0 * * * * JOB_NAME=JointInvestmentWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'JointInvestmentWorker.new.perform' >> /dev/stdout 2>&1
+
+25,55 * * * * JOB_NAME=SyncProductCurrentInvestWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'SyncProductCurrentInvestWorker.new.perform' >> /dev/stdout 2>&1
+
+11,31 * * * * JOB_NAME=Etl::NewrankWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::NewrankWorker.new.perform' >> /dev/stdout 2>&1
+
+0,15,30,45 * * * * JOB_NAME=Etl::NewsWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::NewsWorker.new.perform' >> /dev/stdout 2>&1
+
+1,16,31,46 * * * * JOB_NAME=Etl::OrganizationFundWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::OrganizationFundWorker.new.perform' >> /dev/stdout 2>&1
+
+2,22,42 * * * * JOB_NAME=Etl::QmpProductWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::QmpProductWorker.new.perform' >> /dev/stdout 2>&1
+
+5,35 * * * * JOB_NAME=Etl::TycCompanyWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::TycCompanyWorker.new.perform' >> /dev/stdout 2>&1
+
+3,23,43 * * * * JOB_NAME=Etl::BulkOrganizationWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::BulkOrganizationWorker.new.perform' >> /dev/stdout 2>&1
+
+0,20,40 * * * * JOB_NAME=Etl::BulkProjectWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'Etl::BulkProjectWorker.new.perform' >> /dev/stdout 2>&1
+
+0 0 * * * JOB_NAME=SyncInvestCaseEstMoneyWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'SyncInvestCaseEstMoneyWorker.new.perform' >> /dev/stdout 2>&1
+
+0 7 * * * JOB_NAME=RemoteDictWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'RemoteDictWorker.new.perform' >> /dev/stdout 2>&1
+
+0 10,22 * * * JOB_NAME=QuarterlyTagWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'QuarterlyTagWorker.new.perform' >> /dev/stdout 2>&1
+
+0 10,22 * * * JOB_NAME=MonthlyTagWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'MonthlyTagWorker.new.perform' >> /dev/stdout 2>&1
+
+0 10,22 * * * JOB_NAME=WeeklyTagWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'WeeklyTagWorker.new.perform' >> /dev/stdout 2>&1
+
+0,10,20,30,40,50 * * * * JOB_NAME=AutoMigrationWorker cd /app && bundle exec bin/rails runner -e $RAILS_ENV 'AutoMigrationWorker.new.perform' >> /dev/stdout 2>&1
+

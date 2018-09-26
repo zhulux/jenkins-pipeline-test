@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ${podname}
+  labels:
+    app: ${podname}
+spec:
+  template:
+    spec:
+      containers:
+      - name: ${podname}
+        image: ${image}
+        args:
+        - /bin/bash
+        - -l
+        - -c
+        - ${command}
+      restartPolicy: Never
+  backoffLimit: 1
